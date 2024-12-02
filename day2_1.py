@@ -12,26 +12,25 @@ with open(file_path, 'r') as file:
     lines = file.readlines()
     for line in lines:
         level_list.append(list(map(int, line.split(' '))))
-
 print(level_list)
+
+def check_levels(levels, ascending):
+    print(f"checking {levels}")
+    ascending = True if(levels[0] - levels[1] < 0) else False
+    for i in range(len(levels) - 1):
+        diff = levels[i] - levels[i+1]
+        if abs(diff) < 1 or abs(diff) > 3:
+            return False
+        if ascending and diff > 0:
+            return False
+        if not ascending and diff < 0:
+            return False
+    return True
+
 safe_count = 0
 for levels in level_list:
-    if(len(levels) > 1):
-        ascending = True if(levels[0] - levels[1] < 0) else False
-    succeeded = True
-    print(levels)
-    for i in range(len(levels) -1):
-        diff = levels[i] - levels[i+1]
-        print(diff)
-        if abs(diff) < 1 or abs(diff) > 3:
-            succeeded = False
-            break
-        if ascending and diff > 0:
-            succeeded = False
-            break
-        if not ascending and diff < 0:
-            succeeded = False
-            break
+    ascending = True if(levels[0] - levels[1] < 0) else False
+    succeeded = check_levels(levels, ascending)
     print(succeeded)
     if succeeded:
         safe_count += 1
