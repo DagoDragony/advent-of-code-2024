@@ -2,6 +2,7 @@ import os
 
 # Get the absolute path of the current script's directory
 script_dir = os.path.dirname(os.path.abspath(__file__))
+# file_path = os.path.join(script_dir, 'inputs/input_2_1_example.txt')
 file_path = os.path.join(script_dir, 'inputs/input_2_1.txt')
 
 print(f"Reading file {file_path}")
@@ -22,12 +23,13 @@ for levels in level_list:
     for i in range(len(levels) -1):
         diff = levels[i]-levels[i+1]
         print(diff)
-        if abs(diff) == 0 or abs(diff) > 3:
+        if abs(diff) < 1 or abs(diff) > 3:
             succeeded = False
             break
         if ascending and diff > 0:
             succeeded = False
             break
+    print(succeeded)
     if succeeded:
         safe_count += 1
 
