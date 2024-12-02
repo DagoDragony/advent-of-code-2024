@@ -14,7 +14,7 @@ with open(file_path, 'r') as file:
         level_list.append(list(map(int, line.split(' '))))
 print(level_list)
 
-def check_levels(levels, ascending):
+def check_levels(levels):
     print(f"checking {levels}")
     ascending = True if(levels[0] - levels[1] < 0) else False
     for i in range(len(levels) - 1):
@@ -27,12 +27,12 @@ def check_levels(levels, ascending):
             return False
     return True
 
+
 safe_count = 0
 for levels in level_list:
-    ascending = True if(levels[0] - levels[1] < 0) else False
-    succeeded = check_levels(levels, ascending)
-    print(succeeded)
-    if succeeded:
-        safe_count += 1
+    succeeded = check_levels(levels)
+    # print(succeeded)
+    safe_count += succeeded
 
+print(sum([int(check_levels(levels)) for levels in level_list]))
 print(f"result1: {safe_count}")
