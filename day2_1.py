@@ -21,12 +21,15 @@ for levels in level_list:
     succeeded = True
     print(levels)
     for i in range(len(levels) -1):
-        diff = levels[i]-levels[i+1]
+        diff = levels[i] - levels[i+1]
         print(diff)
         if abs(diff) < 1 or abs(diff) > 3:
             succeeded = False
             break
         if ascending and diff > 0:
+            succeeded = False
+            break
+        if not ascending and diff < 0:
             succeeded = False
             break
     print(succeeded)
