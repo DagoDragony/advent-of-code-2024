@@ -2,7 +2,7 @@ import os
 
 # Get the absolute path of the current script's directory
 script_dir = os.path.dirname(os.path.abspath(__file__))
-file_path = os.path.join(script_dir, 'inputs/input_2_1.txt')
+file_path = os.path.join(script_dir, 'inputs/input_d2.txt')
 # file_path = os.path.join(script_dir, 'inputs/input_2_1_example.txt')
 
 print(f"Reading file {file_path}")

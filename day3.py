@@ -7,7 +7,7 @@ from itertools import tee, islice
 script_dir = os.path.dirname(os.path.abspath(__file__))
 # file_path = os.path.join(script_dir, 'inputs/input_3_1_example.txt')
 # file_path = os.path.join(script_dir, 'inputs/input_3_2_example.txt')
-file_path = os.path.join(script_dir, 'inputs/input_3_1.txt')
+file_path = os.path.join(script_dir, 'inputs/input_d3.txt')
 
 print(f"Reading file {file_path}")
 print(f"PROCESSING PART 1...")
