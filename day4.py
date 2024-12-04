@@ -104,9 +104,30 @@ def check_XMAS(i, j, puzzle):
     return 0
 
 count = sum(check_XMAS(i, j, puzzle_map) for i in range(len(puzzle_map)) for j in range(len(puzzle_map[0])))
-print(f"count: {count}")
+print(f"result1: {count}")
+
+
+correct_combs = [
+    "MMSS",
+    "SMMS",
+    "SSMM",
+    "MSSM",
+]
+
+def is_right_comb(i, j, puzzle):
+    comb = puzzle[i-1][j-1] + puzzle[i-1][j+1] + puzzle[i+1][j+1] + puzzle[i+1][j-1]
+    print(comb)
+    if comb in correct_combs:
+        return True
+    return False
+
+def solve2(puzzle):
+    a_coords = [(i, j) for i in range(1, len(puzzle) - 1) for j in range(1, len(puzzle[0]) - 1) if puzzle[i][j] == "A"]
+    print(a_coords)
+    return sum([is_right_comb(i, j, puzzle) for i, j in a_coords])
     
-    
+
+print(f"result2: {solve2(puzzle_map)}")
 
 
 # def get_coords_to_check2(i, j, puzzle_map):
