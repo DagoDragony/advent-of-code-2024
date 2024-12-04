@@ -22,7 +22,7 @@ def get_coords_to_check(puzzle_map, coord):
     return [c for c in coords if c[0] < max_i and c[1] < max_j]
 
 
-get_coords_to_check(puzzle_map)
+print(get_coords_to_check(puzzle_map, (5, 5)))
 
 
 # def find_words(i, puzzle_input):
