@@ -17,6 +17,7 @@ with open(file_path, 'r') as file:
 print(rule_list)
 print(update_list)
 
+# if you read A|B, C|B you get B: [A, C] - what cannot go before B
 rule_dict = {}
 for page_before, page_after in rule_list:
     print(page_before, page_after)
