@@ -61,13 +61,15 @@ print(f"result1: {result1}")
 # # print(f"result2: {solve2(content)}")
 
 def fix_updates():
-    incorrect_updates
-    correct
+    return [correct_update(incorrect_update) for incorrect_update in incorrect_updates]
+        
 
 def correct_update(update):
-    # failed_counts = 
-    for l in update:
-        bad = rule_dict[l]
-    [ for l in update]
-    
+    orders = [(l, len(set(update).intersection(rule_dict.get(l, set())))) for l in update]
+    print(update)
+    result = [l[0] for l in sorted(orders, key=lambda x: x[1])]
+    print(result)
+    return result
 
+result2 = sum([int(update[len(update)//2]) for update in fix_updates()])
+print(f"result2: {result2}")
