@@ -43,16 +43,31 @@ def check_abides(update_line, rule_dict):
                 return False
     return True
 
-
-def solve1():
+def get_correct_and_incorrect():
     passed_lines = []
+    failed_lines = []
     for update_line in update_list:
         if check_abides(update_line, rule_dict):
             passed_lines.append(update_line)
-    return passed_lines
+        else:
+            failed_lines.append(update_line)
+    return (passed_lines, failed_lines)
+
+correct_updates, incorrect_updates = get_correct_and_incorrect()
 
 
-result1 = sum([int(ls[len(ls)//2]) for ls in solve1()])
-
+result1 = sum([int(ls[len(ls)//2]) for ls in correct_updates])
 print(f"result1: {result1}")
 # # print(f"result2: {solve2(content)}")
+
+def fix_updates():
+    incorrect_updates
+    correct
+
+def correct_update(update):
+    # failed_counts = 
+    for l in update:
+        bad = rule_dict[l]
+    [ for l in update]
+    
+
