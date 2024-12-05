@@ -51,5 +51,8 @@ def solve1():
             passed_lines.append(update_line)
     return passed_lines
 
-print(f"result1: {len(solve1())}")
+
+result1 = sum([int(ls[len(ls)//2]) for ls in solve1()])
+
+print(f"result1: {result1}")
 # # print(f"result2: {solve2(content)}")
