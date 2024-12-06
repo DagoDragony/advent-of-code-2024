@@ -81,7 +81,6 @@ print("-"*100)
 
 possible_location_of_obstacle = [(i, j) for i in range(len(lab_map)) for j in range(len(lab_map[0])) if lab_map[i][j] == "."]
 
-
 # print_map(lab_map)
 print(result)
 # # print(f"result2: {solve2(content)}")
