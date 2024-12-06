@@ -52,8 +52,10 @@ def is_loop_walk(i, j, map):
     path_history = {}
     direction = (-1, 0)
     path_history[(i, j)] = set([direction])
+    matched = 0
+    needed_matches = 1000
     while(True):
-        ni, nj = (i + direction[0], j + direction[1])
+        ni, nj = move(i, j, direction)
         if outside_map(ni, nj, map):
             # print(ni, nj)
             break
@@ -61,17 +63,25 @@ def is_loop_walk(i, j, map):
             # print("#", ni, nj)
             direction = righ_changes[direction]
             # print(direction)
-            process_path_history((i, j), direction, path_history)
-            i, j = (i + direction[0], j + direction[1]) 
+            if process_path_history((i, j), direction, path_history):
+                matched += 1
+                if matched == needed_matches:
+                    return path_history
+
+            i, j = move(i, j, direction)
 
             if process_path_history((i, j), direction, path_history):
-                return path_history
+                matched += 1
+                if matched == needed_matches:
+                    return path_history
             # print(i, j)
         else:
             i, j = (ni, nj)
             # print(i, j)
             if process_path_history((i, j), direction, path_history):
-                return path_history
+                matched += 1
+                if matched == needed_matches:
+                    return path_history
     return {}
 
 def move(i, j, direction):
