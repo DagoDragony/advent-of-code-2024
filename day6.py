@@ -1,7 +1,5 @@
 import os
 
-import numpy as np
-
 # Get the absolute path of the current script's directory
 script_dir = os.path.dirname(os.path.abspath(__file__))
 # file_path = os.path.join(script_dir, 'inputs/input_d6_example1.txt')
@@ -81,6 +79,9 @@ def walk(map):
 result = walk(lab_map)
 print("-"*100)    
 
-print_map(lab_map)
+possible_location_of_obstacle = [(i, j) for i in range(len(lab_map)) for j in range(len(lab_map[0])) if lab_map[i][j] == "."]
+
+
+# print_map(lab_map)
 print(result)
 # # print(f"result2: {solve2(content)}")
