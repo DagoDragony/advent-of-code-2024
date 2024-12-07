@@ -2,6 +2,7 @@ import os
 from typing import List, AnyStr
 # from itertools import distinct_permutations
 from more_itertools import distinct_permutations
+import itertools
 import sys
 
 # Get the absolute path of the current script's directory
@@ -38,11 +39,14 @@ def calc_answer(operators: List[AnyStr], numbers, max_answer):
 
 def is_equation_possible(answer, numbers):
     print(f"{answer}: {numbers}")
-    print("-"*100)    
+    print("-"*100)
     operators = ["+" for _ in range(len(numbers) - 1)]
+    
     if calc_answer(operators, numbers, answer) == answer:
         correct_equation = str(numbers[0]) + " " + "".join([f"{operators[i]} {numbers[i + 1]} " for i in range(len(operators))])
         return correct_equation
+
+    possible_operators = get_operators_comb(["+","*"], len(numbers)- 1)
 
     for i in range(len(operators)):
         operators[i] = "*"
@@ -56,7 +60,15 @@ def is_equation_possible(answer, numbers):
                 return correct_equation
 
     return None
-        
+
+
+def get_operator():
+    for op in ["||","*","+"]:
+        yield op
+
+def get_operators_comb(operators, n):
+    itertools.product(operators, repeate=n)
+
             
 print("-"*100)    
 possible_count = 0
