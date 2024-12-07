@@ -31,7 +31,6 @@ righ_changes = {
 }
 
 def count_walked(map):
-    # print(map)
     return sum([True for i in range(len(map)) for j in range(len(map[0])) if map[i][j] == 'X'])
 
 def print_map(map):
@@ -53,7 +52,7 @@ def is_loop_walk(i, j, map):
     direction = (-1, 0)
     path_history[(i, j)] = set([direction])
     matched = 0
-    needed_matches = 1000
+    needed_matches = 100
     while(True):
         ni, nj = move(i, j, direction)
         if outside_map(ni, nj, map):
