@@ -132,7 +132,7 @@ def solve2(start, map, path):
         # print("Combination")
         # print_map(m)
         infinite_path = is_loop_walk(start_i, start_j, m)
-        if len(infinite_path) > 0 and len(infinite_path) <= len(path):
+        if len(infinite_path) > 0:
             inifinite_loops += 1
             # print_infinite_path(infinite_path, m)
     return inifinite_loops
