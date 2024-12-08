@@ -23,7 +23,7 @@ for equation in equations:
     print(equation)
 
 def calc_answer(operators: List[AnyStr], numbers, max_answer):
-    print(operators)
+    # print(operators)
     agg_answer = numbers[0]
     for i in range(len(operators )):
         # if agg_answer > max_answer:
@@ -32,53 +32,56 @@ def calc_answer(operators: List[AnyStr], numbers, max_answer):
             agg_answer += numbers[i + 1]
         elif operators[i] == "*": 
             agg_answer *= numbers[i + 1]
+        elif operators[i] == "||":
+            agg_answer = int(str(agg_answer) + str(numbers[i + 1]))
     
-    print(str(numbers[0]) + " " + "".join([f"{operators[i]} {numbers[i + 1]} " for i in range(len(operators))]) + f" = {agg_answer} {max_answer}")
+    # print(str(numbers[0]) + " " + "".join([f"{operators[i]} {numbers[i + 1]} " for i in range(len(operators))]) + f" = {agg_answer} {max_answer}")
     return agg_answer
 
 
-def is_equation_possible(answer, numbers):
+def is_equation_possible(answer, numbers, operator_list):
     print(f"{answer}: {numbers}")
-    print("-"*100)
+    # print("-"*100)
     operators = ["+" for _ in range(len(numbers) - 1)]
     
     if calc_answer(operators, numbers, answer) == answer:
         correct_equation = str(numbers[0]) + " " + "".join([f"{operators[i]} {numbers[i + 1]} " for i in range(len(operators))])
         return correct_equation
 
-    possible_operators = get_operators_comb(["+","*"], len(numbers)- 1)
+    possible_operators = get_operators_comb(operator_list, len(numbers)- 1)
 
-    for i in range(len(operators)):
-        operators[i] = "*"
-        # print(type(operators))
-        # print(operators)
-        operators_sets = list(distinct_permutations(operators))
-        # print(operators_sets)
-        for operators_set in operators_sets:
-            if calc_answer(operators_set, numbers, answer) == answer:
-                correct_equation = str(numbers[0]) + " " + "".join([f"{operators[i]} {numbers[i + 1]} " for i in range(len(operators))])
-                return correct_equation
+    for operators_set in possible_operators:
+        # print(operators_set)
+        if calc_answer(operators_set, numbers, answer) == answer:
+            correct_equation = str(numbers[0]) + " " + "".join([f"{operators[i]} {numbers[i + 1]} " for i in range(len(operators))])
+            return correct_equation
+    # for i in range(len(operators)):
+    #     operators[i] = "*"
+    #     # print(type(operators))
+    #     # print(operators)
+    #     operators_sets = list(distinct_permutations(operators))
+    #     # print(operators_sets)
+    #     for operators_set in operators_sets:
+    #         if calc_answer(operators_set, numbers, answer) == answer:
+    #             correct_equation = str(numbers[0]) + " " + "".join([f"{operators[i]} {numbers[i + 1]} " for i in range(len(operators))])
+    #             return correct_equation
 
     return None
 
 
-def get_operator():
-    for op in ["||","*","+"]:
-        yield op
-
 def get_operators_comb(operators, n):
-    itertools.product(operators, repeate=n)
+    return itertools.product(operators, repeat=n)
 
             
 print("-"*100)    
 possible_count = 0
 result_sum = 0
 for answer, numbers in equations:
-    result = is_equation_possible(answer, numbers)
+    result = is_equation_possible(answer, numbers, ['*','+',"||"])
     if result != None:
         possible_count += 1
         result_sum += answer
-        print(result)
+        # print(result)
 
 print("-"*100)    
 print(f"Result: {result_sum}")
