@@ -123,21 +123,29 @@ def print_infinite_path(path, m):
         print("".join(line))
     print()
 
+
+
+def solve2(start, map, path):
+    start_i, start_j = start
+    inifinite_loops = 0
+    for m in get_map_combinations(start_i, start_j, map, path):
+        # print("Combination")
+        # print_map(m)
+        infinite_path = is_loop_walk(start_i, start_j, m)
+        if len(infinite_path) > 0 and len(infinite_path) <= len(path):
+            inifinite_loops += 1
+            # print_infinite_path(infinite_path, m)
+    return inifinite_loops
+
+
 start_i, start_j = get_current_position(lab_map)
 current_path = get_initial_path(start_i, start_j, lab_map)
 print("-"*100)    
 print(f"Result1: {len(current_path)}")
 
-inifinite_loops = 0
-for m in get_map_combinations(start_i, start_j, lab_map, current_path):
-    # print("Combination")
-    # print_map(m)
-    infinite_path = is_loop_walk(start_i, start_j, m)
-    if len(infinite_path) > 0:
-        inifinite_loops += 1
-        # print_infinite_path(infinite_path, m)
+result2 = solve2((start_i, start_j), lab_map, current_path)
 
-print(f"Result2: {inifinite_loops}")
+print(f"Result2: {result2}")
 
 # print_map(lab_map)
 # # print(f"result2: {solve2(content)}")
