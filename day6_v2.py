@@ -163,7 +163,7 @@ for m in get_map_combinations(start_i, start_j, lab_map, current_path):
     # print("Combination")
     # print_map(m)
     infinite_path = is_loop_walk(start_i, start_j, m)
-    if len(infinite_path) > 0:
+    if len(infinite_path) > 100:
         inifinite_loops += 1
         # print_infinite_path(infinite_path, m)
 
