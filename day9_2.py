@@ -27,18 +27,45 @@ def expand_disk_map(map):
     return expanded_disk_map
 
 def compact_disk_map(expaded_disk_map):
-    dm = list(expanded_disk_map)
-    is_full = False
-    i = 0
-    empty_spaces = [(i, j) for i, block in enumerate(expanded_disk_map) for j in range(len(block)) if i % 2 == 1]
-    numbers = list(reversed([(i, j) for i, block in enumerate(expanded_disk_map) for j in range(len(block)) if i % 2 == 0]))
+    empty_blocks = [(i, block) for i, block in enumerate(expanded_disk_map) if i % 2 == 1]
+    number_blocks = list(reversed([(i, block) for i, block in enumerate(expanded_disk_map) if i % 2 == 0]))
 
-    for i in range(len(empty_spaces)):
-        ei, ej = empty_spaces[i]
-        ni, nj = numbers[i]
+    number_index = 0 
+    empty_index = 0
+    while True:
+        empty_i, empty_block = empty_blocks[empty_index]
+        number_i, number_block = number_blocks[number_index]
 
-        if (ni, nj) < (ei, ej):
+        if number_i <= empty_i:
             break
+
+        if len(empty_block) >= len(number_block):
+            for i, number in enumerate(number_block):
+                empty_block[i] = number
+            
+            for i, 
+
+            # copy one by one 
+            expanded_disk_map[number_i] = 
+            # empty one by one
+
+            empty_index += 1
+            number_index += 1
+        elif len(empty_block) < len(number_block):
+            number_index += 1
+
+
+
+        if block
+        
+
+        # if last_emptied <= (ei, ej):
+        #     break
+        # #     lei, lej = last_emptied
+        # #     expanded_disk_map[lei][lej] = expaded_disk_map[ni][nj]
+        # else:
+        # if (ei, ej) in filled:
+        #     break
 
         expanded_disk_map[ei][ej] = expaded_disk_map[ni][nj]
         expanded_disk_map[ni][nj] = '.'
