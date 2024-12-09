@@ -39,10 +39,12 @@ def compact_disk_map(expaded_disk_map):
         ni, nj = numbers[i]
 
         if expaded_disk_map[ni][nj] == '.':
-            print(ei, ej, ni, nj)
+            # print(ei, ej, ni, nj)
             break
 
         if last_emptied < (ei, ej):
+            print("last_emptied < (ei, ej)")
+            break
             lei, lej = last_emptied
             expanded_disk_map[lei][lej] = expaded_disk_map[ni][nj]
         else:
@@ -51,6 +53,8 @@ def compact_disk_map(expaded_disk_map):
         expanded_disk_map[ni][nj] = '.'
         last_emptied = (ni, nj)
 
+        print("".join(["".join(ls) for i, ls in enumerate(expanded_disk_map)]))
+
 # 00 998 111 888 2 777 333 6 44 6 555 566
 expanded_disk_map = expand_disk_map(disk_map)
 print(expanded_disk_map)
@@ -58,6 +62,7 @@ print(expanded_disk_map)
 compact_disk_map(expanded_disk_map)
 for l in expanded_disk_map:
     print(l)
+print(expanded_disk_map)
             
 print("-"*100)    
 print(f"Result1: ")
