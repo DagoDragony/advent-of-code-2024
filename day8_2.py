@@ -1,5 +1,6 @@
 import os
 import itertools
+from collections import defaultdict
 
 script_dir = os.path.dirname(os.path.abspath(__file__))
 # file_path = os.path.join(script_dir, 'inputs/input_d8_example1.txt')
@@ -7,10 +8,8 @@ file_path = os.path.join(script_dir, 'inputs/input_d8.txt')
 
 print(f"Reading file {file_path}")
 print("PROCESSING PART 1...")
-antenas_map = []
 with open(file_path, 'r') as file:
-    for line in file.readlines():
-        antenas_map.append(line.strip())
+    antenas_map = [line.strip() for line in file]
 
 
 for line in antenas_map:
@@ -18,16 +17,11 @@ for line in antenas_map:
 
 
 def find_antennas(map):
-    antennas = {}
-    for i in range(len(map)):
-        for j in range(len(map[0])):
-            symbol = map[i][j]
+    antennas = defaultdict(list)
+    for i, row in enumerate(map):
+        for j, symbol in  enumerate(row):
             if symbol.isalnum():
-                if symbol in antennas:
-                    antennas[symbol].append((i, j))
-                else:
-                    antennas[symbol] = [(i, j)]
-    # print(antennas)
+                antennas[symbol].append((i, j))
     return antennas
 
 
@@ -38,14 +32,13 @@ def outside_map(i, j, max_i, max_j):
 def get_combination_antinodes(c1, c2, max_i, max_j):
     i1, j1 = c1
     i2, j2 = c2
-    di = i1 - i2
-    dj = j1 - j2
+    di, dj = i1 - i2, j1 - j2
 
     def get_side_antinodes(i, j, di, dj):
         antinodes = []
         while not outside_map(i, j, max_i, max_j):
             antinodes.append((i, j))
-            i, j = (i + di, j + dj)
+            i, j = i + di, j + dj
 
         return antinodes
     
@@ -58,9 +51,7 @@ def get_combination_antinodes(c1, c2, max_i, max_j):
 
 
 def get_same_frequency_antinodes(antennas, max_i, max_j):
-    # print(f"antennas {antennas}")
-    # print(type(antennas))
-    antenna_name, coords = antennas
+    _, coords = antennas
     combinations = itertools.combinations(coords, r=2)
     antinodes_list = []
     [antinodes_list.extend(get_combination_antinodes(c1, c2, max_i, max_j)) for c1, c2 in combinations]
@@ -69,10 +60,8 @@ def get_same_frequency_antinodes(antennas, max_i, max_j):
 
 def solve1(map):
     antinodes = []
-    max_i = len(map)
-    max_j = len(map[0])
+    max_i, max_j = len(map), len(map[0])
     for antennas in find_antennas(map).items():
-        # print(f"0antennas {antennas}")
         antinodes.extend(get_same_frequency_antinodes(antennas, max_i, max_j))
     return antinodes
 

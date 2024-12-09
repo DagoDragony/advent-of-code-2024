@@ -11,12 +11,10 @@ file_path = os.path.join(script_dir, 'inputs/input_d8.txt')
 
 print(f"Reading file {file_path}")
 print("PROCESSING PART 1...")
-antenas_map = []
 with open(file_path, 'r') as file:
-    for line in file.readlines():
-        antenas_map.append(line.strip())
-        print(line.strip())
+        disk_map = file.read()
 
+print(disk_map)
 def find_antennas(map):
     antennas = defaultdict(list)
     for i, row in enumerate(map):
