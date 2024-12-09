@@ -33,29 +33,28 @@ def compact_disk_map(expaded_disk_map):
     empty_spaces = [(i, j) for i, block in enumerate(expanded_disk_map) for j in range(len(block)) if i % 2 == 1]
     numbers = list(reversed([(i, j) for i, block in enumerate(expanded_disk_map) for j in range(len(block)) if i % 2 == 0]))
 
-    last_emptied = (9999999999, 99999999999)
-    filled = set()
     for i in range(len(empty_spaces)):
         ei, ej = empty_spaces[i]
         ni, nj = numbers[i]
 
-        # if expaded_disk_map[ni][nj] == 'X':
+        # if expaded_disk_map[ei][ej] != '.':
         #     # print(ei, ej, ni, nj)
         #     break
+
+        if (ni, nj) < (ei, ej):
+            break
         
+
         # if last_emptied <= (ei, ej):
         #     break
         # #     lei, lej = last_emptied
         # #     expanded_disk_map[lei][lej] = expaded_disk_map[ni][nj]
         # else:
-        if (ei, ej) in filled:
-            break
+        # if (ei, ej) in filled:
+        #     break
 
         expanded_disk_map[ei][ej] = expaded_disk_map[ni][nj]
-
-        expanded_disk_map[ni][nj] = 'X'
-        filled((ei, ej))
-        # last_emptied = (ni, nj)
+        expanded_disk_map[ni][nj] = '.'
 
         # print("".join(["".join(ls) for i, ls in enumerate(expanded_disk_map)]))
 
@@ -96,7 +95,6 @@ print(f"result1: {sum(checksum_products)}")
 # print("-"*100)    
 # print(f"Result1: ")
 
-# too low 6385338159123
-# too high 6385338185492
-print(len(expanded_disk_map))
-print(len(disk_map))
+# too low       6385338159123
+# the right one 6385338159127
+# too high      6385338185492
