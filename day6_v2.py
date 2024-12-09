@@ -30,15 +30,9 @@ righ_changes = {
     (-1, 0): (0, 1)
 }
 
-<<<<<<< HEAD
 obstacle_symbols = set()
 obstacle_symbols.add("#")
 obstacle_symbols.add("O")
-=======
-def count_walked(map):
-    # return sum([True for i in range(len(map)) for j in range(len(map[0])) if map[i][j] == 'X'])
-    return sum([True for _, row in enumerate(map) for _, symbol in enumerate(row) if symbol == 'X'])
->>>>>>> c6ae049 (auto update)
 
 def print_map(map):
     for l in map:
@@ -46,11 +40,7 @@ def print_map(map):
 
 def process_path_history(c, direction, path_history):
     if c in  path_history and direction in path_history[c]:
-<<<<<<< HEAD
         return True
-=======
-            return True
->>>>>>> c6ae049 (auto update)
     else:
         path_history[c].add(direction)
     return False
@@ -63,11 +53,7 @@ def is_loop_walk(i, j, map):
         ni, nj = move(i, j, direction)
         if outside_map(ni, nj, map):
             break
-<<<<<<< HEAD
         elif map[ni][nj] in obstacle_symbols:
-=======
-        elif map[ni][nj] == '#' or map[ni][nj] == 'O':
->>>>>>> c6ae049 (auto update)
             direction = righ_changes[direction]
             if process_path_history((i, j), direction, path_history):
                 return path_history
@@ -94,21 +80,13 @@ def get_initial_path(i, j, map):
         ni, nj = move(i, j, direction)
         if outside_map(ni, nj, map):
             break
-<<<<<<< HEAD
         elif map[ni][nj] in obstacle_symbols:
-=======
-        elif map[ni][nj] == '#' or map[ni][nj] == 'O':
->>>>>>> c6ae049 (auto update)
             direction = righ_changes[direction]
             i, j = move(i, j, direction)
             passed_path.add((i, j))
         else:
             i, j = (ni, nj)
             passed_path.add((i, j))
-<<<<<<< HEAD
-=======
-
->>>>>>> c6ae049 (auto update)
     return passed_path
 
 
@@ -147,8 +125,6 @@ def print_infinite_path(path, m):
         print("".join(line))
     print()
 
-<<<<<<< HEAD
-
 
 def solve2(start, map, path):
     start_i, start_j = start
@@ -161,14 +137,6 @@ def solve2(start, map, path):
             inifinite_loops += 1
             # print_infinite_path(infinite_path, m)
     return inifinite_loops
-=======
-inifinite_loops = 0
-for m in get_map_combinations(start_i, start_j, lab_map, current_path)[:10]:
-    infinite_path = is_loop_walk(start_i, start_j, m)
-    if len(infinite_path) > 0:
-        print_infinite_path(infinite_path, m)
-        inifinite_loops += 1
->>>>>>> c6ae049 (auto update)
 
 
 start_i, start_j = get_current_position(lab_map)
