@@ -42,12 +42,8 @@ def compact_disk_map(expaded_disk_map):
         if len(empty_block) >= len(number_block):
             for i, number in enumerate(number_block):
                 empty_block[i] = number
+                number_block[i] = number
             
-            for i, 
-
-            # copy one by one 
-            expanded_disk_map[number_i] = 
-            # empty one by one
 
             empty_index += 1
             number_index += 1
@@ -56,7 +52,6 @@ def compact_disk_map(expaded_disk_map):
 
 
 
-        if block
         
 
         # if last_emptied <= (ei, ej):
