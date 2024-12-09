@@ -3,8 +3,8 @@ from collections import defaultdict
 
 # Get the absolute path of the current script's directory
 script_dir = os.path.dirname(os.path.abspath(__file__))
-file_path = os.path.join(script_dir, 'inputs/input_d6.txt')
 # file_path = os.path.join(script_dir, 'inputs/input_d6.txt')
+file_path = os.path.join(script_dir, 'inputs/input_d6_example1.txt')
 
 print(f"Reading file {file_path}")
 print("PROCESSING PART 1...")
@@ -56,7 +56,24 @@ def get_initial_path(start, map):
         visited.add((i, j))
     return visited
 
+def add_obsticle(c, map):
+    new_map = [list(ls) for ls in map]
+    i, j = c
+    new_map[i][j] = "O"
+    return new_map
+
+def get_map_combination(path, map):
+    return [add_obsticle(c, map) for c in path]
+
+
 start = find_start(lab_map)
 print("start", start)
 initial_path = get_initial_path(start, lab_map)
 print("initial path length", len(initial_path))
+map_combinations = get_map_combination(initial_path, lab_map)
+for map in map_combinations:
+    for line in map:
+        print(line)
+    print("-" * 100)
+
+
