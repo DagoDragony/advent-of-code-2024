@@ -26,61 +26,50 @@ def expand_disk_map(map):
             expanded_disk_map.append(["." for n in range(nmb)])
     return expanded_disk_map
 
-def compact_disk_map(expaded_disk_map):
-    empty_blocks = [(i, block) for i, block in enumerate(expanded_disk_map) if i % 2 == 1]
-    number_blocks = list(reversed([(i, block) for i, block in enumerate(expanded_disk_map) if i % 2 == 0]))
+def compact_disk_map(map):
+    empty_blocks = [(i, block, len(block)) for i, block in enumerate(map) if i % 2 == 1]
+    number_blocks = list(reversed([(i, block) for i, block in enumerate(map) if i % 2 == 0]))
 
     number_index = 0 
-    empty_index = 0
     while True:
-        empty_i, empty_block = empty_blocks[empty_index]
         number_i, number_block = number_blocks[number_index]
 
-        if number_i <= empty_i:
-            break
+        empty_index = 0
+        while True:
+            empty_i, empty_block, leftover = empty_blocks[empty_index]
+            # print(number_block)
 
-        if len(empty_block) >= len(number_block):
-            for i, number in enumerate(number_block):
-                empty_block[i] = number
-            
-            for i, 
+            # ???
+            if number_i <= empty_i:
+                break
 
-            # copy one by one 
-            expanded_disk_map[number_i] = 
-            # empty one by one
-
+            if leftover >= len(number_block):
+                empty_start_index = len(empty_block) - leftover
+                for i, number in enumerate(number_block):
+                    empty_block[empty_start_index + i] = number
+                    number_block[i] = "."
+                leftover = leftover - len(number_block)
+                empty_blocks[empty_index] = (empty_i, empty_block, leftover)
+                break
             empty_index += 1
-            number_index += 1
-        elif len(empty_block) < len(number_block):
-            number_index += 1
-
-
-
-        if block
-        
-
-        # if last_emptied <= (ei, ej):
-        #     break
-        # #     lei, lej = last_emptied
-        # #     expanded_disk_map[lei][lej] = expaded_disk_map[ni][nj]
-        # else:
-        # if (ei, ej) in filled:
-        #     break
-
-        expanded_disk_map[ei][ej] = expaded_disk_map[ni][nj]
-        expanded_disk_map[ni][nj] = '.'
-
+        number_index += 1
+        if number_index == len(number_blocks) - 1:
+            break
         # print("".join(["".join(ls) for i, ls in enumerate(expanded_disk_map)]))
+
+def print_expanded_disk_map(map):
+    print("".join([str(v) for l in map for v in l]))
 
 # 00 998 111 888 2 777 333 6 44 6 555 566
 expanded_disk_map = expand_disk_map(disk_map)
-print(expanded_disk_map)
-# print("".join(expanded_disk_map))
+print_expanded_disk_map(expanded_disk_map)
+# print("".join([v for l in expanded_disk_map for v in l]))
 compact_disk_map(expanded_disk_map)
-for l in expanded_disk_map:
-    print(l)
+print_expanded_disk_map(expanded_disk_map)
+
 print("checksum")
 print(len(expanded_disk_map))
+print(expanded_disk_map)
 file_list = []
 
 for i in range(0, len(expanded_disk_map), 2):
@@ -88,11 +77,8 @@ for i in range(0, len(expanded_disk_map), 2):
 print(file_list)
 
 
-# final_sum = [i*int(file[i]) for file in file_list for i in range(len(file)) if file[i] != "."]
-# final_sum = [i*int(file[i]) for file in file_list for i in range(len(file)) if file[i] != "." and file[i] != "X"]
 print("-"*100)    
 
-# print([int(n) for file in file_list for n in file if n != "." and n != "X"])
 checksum_values = [0 if n == "." or n == "X" else int(n) for file in file_list for n in file]
 checksum_products = [i * file for i, file in enumerate(checksum_values)]
 print("checksum_values")
