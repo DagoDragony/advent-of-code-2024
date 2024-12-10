@@ -3,8 +3,8 @@ from collections import defaultdict
 
 # Get the absolute path of the current script's directory
 script_dir = os.path.dirname(os.path.abspath(__file__))
-# file_path = os.path.join(script_dir, 'inputs/input_d6.txt')
-file_path = os.path.join(script_dir, 'inputs/input_d6_example1.txt')
+file_path = os.path.join(script_dir, 'inputs/input_d6.txt')
+# file_path = os.path.join(script_dir, 'inputs/input_d6_example1.txt')
 
 print(f"Reading file {file_path}")
 print("PROCESSING PART 1...")
@@ -65,15 +65,41 @@ def add_obsticle(c, map):
 def get_map_combination(path, map):
     return [add_obsticle(c, map) for c in path]
 
+obsticles = set(["#", "O"])
+def is_loop(start, map):
+    i, j = start
+    max = (len(map), len(map[0]))
+    direction = direction_up
+    visited = defaultdict(set) 
+    visited[(i, j)].add(direction)
+    while True:
+        ni, nj = move((i, j), direction)
+        if outside((ni, nj), max):
+            return False
+        elif map[ni][nj] in obsticles:
+            direction = turn_righ[direction]
+        else:
+            i, j = ni, nj
+        
+        if direction in visited[(i, j)]:
+            return True
+        
+        visited[(i, j)].add(direction)
+
 
 start = find_start(lab_map)
 print("start", start)
 initial_path = get_initial_path(start, lab_map)
 print("initial path length", len(initial_path))
+initial_path.remove(start)
 map_combinations = get_map_combination(initial_path, lab_map)
-for map in map_combinations:
-    for line in map:
-        print(line)
-    print("-" * 100)
+# for map in map_combinations:
+#     for line in map:
+#         print(line)
+#     print("-" * 100)
+
+loops = [is_loop(start, map_combination) for map_combination in map_combinations]
+print(sum(loops))
+    
 
 
