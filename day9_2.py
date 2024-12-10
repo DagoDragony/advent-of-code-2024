@@ -34,37 +34,6 @@ def compact_disk_map(map):
             if number_i <= empty_i:
                 break
 
-<<<<<<< HEAD
-        if number_i <= empty_i:
-            break
-
-        if len(empty_block) >= len(number_block):
-            for i, number in enumerate(number_block):
-                empty_block[i] = number
-                number_block[i] = number
-            
-
-            empty_index += 1
-            number_index += 1
-        elif len(empty_block) < len(number_block):
-            number_index += 1
-
-
-
-        
-
-        # if last_emptied <= (ei, ej):
-        #     break
-        # #     lei, lej = last_emptied
-        # #     expanded_disk_map[lei][lej] = expaded_disk_map[ni][nj]
-        # else:
-        # if (ei, ej) in filled:
-        #     break
-
-        expanded_disk_map[ei][ej] = expaded_disk_map[ni][nj]
-        expanded_disk_map[ni][nj] = '.'
-
-=======
             if leftover >= len(number_block):
                 empty_start_index = len(empty_block) - leftover
                 for i, number in enumerate(number_block):
@@ -77,7 +46,6 @@ def compact_disk_map(map):
         number_index += 1
         if number_index == len(number_blocks) - 1:
             break
->>>>>>> fed30c233ffb934e23cbebff700d715d21e57534
         # print("".join(["".join(ls) for i, ls in enumerate(expanded_disk_map)]))
 
 def print_expanded_disk_map(map):
