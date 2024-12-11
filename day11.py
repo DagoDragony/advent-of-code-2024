@@ -35,26 +35,35 @@ def get_stones_after_n_blinks(i_stones, blinks):
                 stones[index] = stones[index] * 2024
     return stones
 
+cache = {}
+
+def get_next_stones(stone, max_depth):
+    if stone in cache:
+        return cache[stone]
+
+
+
+    index = i + shift
+    n = stones[index]
+    if n == 0:
+        stones[index] = 1
+    elif (len(str(n)) % 2 == 0):
+        str_stone = str(n)
+        middle_index = int(len(str_stone) / 2)
+        stones[index] = int(str_stone[:middle_index])
+        stones[index] = int(str_stone[:middle_index])
+        stones.insert(index, int(str_stone[middle_index:]))
+        shift += 1
+    else:
+        stones[index] = stones[index] * 2024
+
+
 def get_stones_after_n_blinks_efficient(i_stones, blinks):
     cache = defaultdict(list)
     stones = deque(i_stones)
     for iteration in range(blinks):
+        get_next_stones()
         print(iteration)
-        shift = 0
-        for i in range(len(stones)):
-            index = i + shift
-            n = stones[index]
-            if n == 0:
-                stones[index] = 1
-            elif (len(str(n)) % 2 == 0):
-                str_stone = str(n)
-                middle_index = int(len(str_stone) / 2)
-                stones[index] = int(str_stone[:middle_index])
-                stones[index] = int(str_stone[:middle_index])
-                stones.insert(index, int(str_stone[middle_index:]))
-                shift += 1
-            else:
-                stones[index] = stones[index] * 2024
     return stones
 
 print("Initial stones")
