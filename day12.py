@@ -60,7 +60,21 @@ def get_regions(garden):
                 used.update(region)
     return regions
 
+def move_in_direction(c, d):
+    i, j = c
+    di, dj = d
+    return (i+di, j+dj)
 
+
+def get_down_coord(c):
+    return move_in_direction(c, (1, 0))
+def get_up_coord(c):
+    return move_in_direction(c, (-1, 0))
+def get_righ_coord(c):
+    return move_in_direction(c, (0, 1))
+def get_left_coord(c):
+    return move_in_direction(c, (0, -1))
+    
 
 def get_perimeter_and_area(region):
     area = len(region)
@@ -68,7 +82,34 @@ def get_perimeter_and_area(region):
     for i, j in region:
         outside_count = sum([1 for di, dj in directions if not (i+di, j+dj) in region])
         perimeter += outside_count
-    return (perimeter, area) 
+    return (perimeter, area)
+
+def get_ranges(region):
+    all_i = [i for i, _ in region]
+    all_j = [j for _, j in region]
+    return (min(all_i), max(all_i), min(all_j), max(all_j))
+
+def get_perimeter_and_area_with_dicount(region):
+    area = len(region)
+    perimeter = 0
+    last_up = 0
+    min_i, max_i, min_j, max_j = get_ranges(region)
+    last_down = 0
+    horizontal_perimeter = 0
+    coords = 
+    start_i =
+    for i, row in enumerate(region):
+        for j, c in enumerate(row):
+            up = get_up_coord(c)
+
+            if not up in region:
+                if last_up == None:
+                    last_up = []
+
+            down = get_down_coord(c)
+            if last_up == None:
+
+
 
 
 # file_path = os.path.join(script_dir, 'inputs/input_d12_example1.txt')
