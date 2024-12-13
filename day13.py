@@ -56,27 +56,28 @@ machine_settings = get_machine_behaviors(file_path)
 
 
 def get_price(machine_settings):
-    no_price_price = 99999999999999999999
-    best_price = no_price_price
+    best_price = None 
 
     def get_options(machine_settings, coord, price, depth):
+        nonlocal best_price
+
         if depth < 0:
             return None
 
-        print(depth)
-        time.sleep(0.01)
-
-        
+        # print(depth)
+        # time.sleep(0.01)
 
         bt_a, bt_b, prize = machine_settings
 
         if coord == prize:
             best_price = min(best_price, price)
+
+        if best_price != None and best_price < price:
             print("best_price", best_price)
             return
 
         if coord[0] > prize[0] or coord[1] > prize[1]:
-            print("overeached_prize")
+            # print("overeached_prize_coord")
             return
 
         get_options(machine_settings, (coord[0] + bt_a[0], coord[1] + bt_a[1]), price + 3, depth - 1)
@@ -84,8 +85,7 @@ def get_price(machine_settings):
     
     get_options(machine_settings, (0, 0), 0, 100)
     
-    return best_price if best_price != no_price_price else None
-
+    return best_price
 
 print("Machine settings")
 print("-" * 100)
