@@ -36,7 +36,7 @@ def parse_machine_behavior(machine_settings_str) -> Machine:
     return Machine(
         (int(a_match.group(1)), int(a_match.group(2))),
         (int(b_match.group(1)), int(b_match.group(2))),
-        (int(prize_match.group(1)), int(prize_match.group(2)))
+        (int(prize_match.group(1)) + 10000000000000, int(prize_match.group(2)) + 10000000000000)
     )
 
 print("PROCESSING PART 1...")
@@ -48,8 +48,8 @@ def get_machine_behaviors(file_path) -> list:
     machine_behaviors_strings = [lines[i:i+4] for i in range(0, len(lines), 4)]
     return [parse_machine_behavior(machine_behavior_string) for machine_behavior_string in machine_behaviors_strings]
 
-# file_path = os.path.join(script_dir, 'inputs/input_d13_example1.txt')
-file_path = os.path.join(script_dir, 'inputs/input_d13.txt')
+file_path = os.path.join(script_dir, 'inputs/input_d13_example1.txt')
+# file_path = os.path.join(script_dir, 'inputs/input_d13.txt')
 machine_settings = get_machine_behaviors(file_path)
 
 
@@ -61,8 +61,9 @@ def get_price(machine_settings) -> int | None:
     cache = {}
     def get_inner_price(a_count, b_count, machine_settings) -> int | None:
         nonlocal cache
-        if a_count > 100 or b_count > 100:
-            return None
+        # if a_count > 100 or b_count > 100:
+        #     return None
+
         # print(machine)
         # print("iteration", a_count, b_count)
         key = (a_count, b_count)
@@ -97,37 +98,6 @@ def get_price(machine_settings) -> int | None:
         return min_or_none([r1, r2])
     return get_inner_price(0, 0, machine_settings)
 
-# def get_price(machine_settings):
-#     best_price = None 
-
-#     def get_options(machine_settings, coord, price, depth):
-#         nonlocal best_price
-
-#         if depth < 0:
-#             return None
-
-#         # print(depth)
-#         # time.sleep(0.01)
-
-#         bt_a, bt_b, prize = machine_settings
-
-#         if coord == prize:
-#             best_price = min(best_price, price)
-
-#         if best_price != None and best_price < price:
-#             print("best_price", best_price)
-#             return
-
-#         if coord[0] > prize[0] or coord[1] > prize[1]:
-#             # print("overeached_prize_coord")
-#             return
-
-#         get_options(machine_settings, (coord[0] + bt_a[0], coord[1] + bt_a[1]), price + 3, depth - 1)
-#         get_options(machine_settings, (coord[0] + bt_b[0], coord[1] + bt_b[1]), price + 1, depth - 1)
-    
-#     get_options(machine_settings, (0, 0), 0, 100)
-    
-#     return best_price
 
 print("Machine settings")
 print("-" * 100)
