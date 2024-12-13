@@ -52,6 +52,8 @@ file_path = os.path.join(script_dir, 'inputs/input_d13_example1.txt')
 # file_path = os.path.join(script_dir, 'inputs/input_d13.txt')
 machine_settings = get_machine_behaviors(file_path)
 
+def get_price(a_count, b_count, coord, machine_settings):
+
 
 
 
