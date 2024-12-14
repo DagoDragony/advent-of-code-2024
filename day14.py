@@ -8,8 +8,8 @@ from math import prod
 
 # Get the absolute path of the current script's directory
 script_dir = os.path.dirname(os.path.abspath(__file__))
-file_path = os.path.join(script_dir, 'inputs/input_d14_example1.txt')
-# file_path = os.path.join(script_dir, 'inputs/input_d14.txt')
+# file_path = os.path.join(script_dir, 'inputs/input_d14_example1.txt')
+file_path = os.path.join(script_dir, 'inputs/input_d14.txt')
 
 @dataclass
 class RobotData:
@@ -92,20 +92,38 @@ def count_robots_in_quadrants(robots, time):
 def print_robots_iterations_map(robots, max_time):
 	for i in range(1, max_time):
 		final_locations = set(count_final_locations(robots, i))
+		y_locations = sorted([(y, x) for x, y in final_locations])
+		# print(y_locations)
 
-		t = defaultdict(int)
-		for x, y in final_locations:
-			# print("#" * 10)
-			# print(x, y)
-			# break
-			# print(x, y, type(final_locations))
-			# print(y)
-			t[y] += 1
+		# t = defaultdict(int)
+		last_coord = (-1, -1)
+		consecutive_count = 1
+		for y, x in y_locations:
+			if last_coord[0] + 1 == x and last_coord[1] == y:
+				consecutive_count += 1
+				if consecutive_count == 3:
+					is_top = all([
+						# about is .#.
+						not (x-2, y-1) in final_locations,
+						(x-1, y-1) in final_locations,
+						not (x, y-1) in final_locations,
+						# down is ###
+						(x-2, y+1) in final_locations,
+						(x-1, y+1) in final_locations,
+						(x, y+1) in final_locations,
+					])
+					if is_top:
+						print_map(Counter(final_locations))
+						return i
+			else:
+				consecutive_count = 1
+			
+			last_coord = (x, y)
 		
-		print_map(Counter(final_locations))
+		# print_map(Counter(final_locations))
 		
 		# line_counts = t
-		seems_like_christmas_tree = final_
+		# seems_like_christmas_tree = final_
 
 		# seems_like_christmas_tree = all([line_counts[y] <= line_counts[y+1] for y in range(boundaries_y-1, boundaries_y - 10, -1)])
 		# # seems_like_christmas_tree = all([line_counts[y] == y + 2 for y in range(boundaries_y-4, 0, -1)])
@@ -162,4 +180,4 @@ for robot_data in robots_data:
 # print(f"Result1 {count_robots_in_quadrants(robots_data, 100)}")
 
 
-print(print_robots_iterations_map(robots_data, 100))
+print(print_robots_iterations_map(robots_data, 20000))
