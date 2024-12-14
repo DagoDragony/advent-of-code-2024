@@ -7,8 +7,8 @@ import re
 
 # Get the absolute path of the current script's directory
 script_dir = os.path.dirname(os.path.abspath(__file__))
-file_path = os.path.join(script_dir, 'inputs/input_d14_example1.txt')
-# file_path = os.path.join(script_dir, 'inputs/input_d14.txt')
+# file_path = os.path.join(script_dir, 'inputs/input_d14_example1.txt')
+file_path = os.path.join(script_dir, 'inputs/input_d14.txt')
 
 @dataclass
 class RobotData:
@@ -94,21 +94,22 @@ def print_map(locations):
     print('-' * 100)
 
 # todo: remove
-boundaries_x, boundaries_y = (7, 11)
+# boundaries_x, boundaries_y = (11, 7)
 
 robots_data = get_robots_data(file_path)
 for robot_data in robots_data:
     print(robot_data)
 
 
-print([(robot.initial_location[0], robot.initial_location[1]) for robot in robots_data])
-initial_counter = Counter([(robot.initial_location[0], robot.initial_location[1]) for robot in robots_data])
-print(initial_counter)
-print("Initial map")
-print_map(initial_counter)
+# print([(robot.initial_location[0], robot.initial_location[1]) for robot in robots_data])
+# initial_counter = Counter([(robot.initial_location[0], robot.initial_location[1]) for robot in robots_data])
+# print(initial_counter)
+# print("Initial map")
+# print_map(initial_counter)
 
 
-# print(f"Result1 {count_robots_in_quadrants(robots_data, 100)}")
+print(f"Result1 {count_robots_in_quadrants(robots_data, 100)}")
+# 500 - too low
 
     
 
