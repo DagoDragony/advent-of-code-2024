@@ -8,8 +8,8 @@ from math import prod
 
 # Get the absolute path of the current script's directory
 script_dir = os.path.dirname(os.path.abspath(__file__))
-# file_path = os.path.join(script_dir, 'inputs/input_d14_example1.txt')
-file_path = os.path.join(script_dir, 'inputs/input_d14.txt')
+file_path = os.path.join(script_dir, 'inputs/input_d14_example1.txt')
+# file_path = os.path.join(script_dir, 'inputs/input_d14.txt')
 
 @dataclass
 class RobotData:
@@ -91,21 +91,20 @@ def count_robots_in_quadrants(robots, time):
 
 def print_robots_iterations_map(robots, max_time):
 	for i in range(1, max_time):
-		final_locations = count_final_locations(robots, i)
+		final_locations = set(count_final_locations(robots, i))
 		t = defaultdict(int)
-		for x, y in final_locations:
+		for _, y in final_locations:
 			# print("#" * 10)
 			# print(x, y)
 			# break
 			# print(x, y, type(final_locations))
 			# print(y)
 			t[y] += 1
-
-
+		
 		print_map(Counter(final_locations))
-
 		
 		# line_counts = t
+		seems_like_christmas_tree = final_
 
 		# seems_like_christmas_tree = all([line_counts[y] <= line_counts[y+1] for y in range(boundaries_y-1, boundaries_y - 10, -1)])
 		# # seems_like_christmas_tree = all([line_counts[y] == y + 2 for y in range(boundaries_y-4, 0, -1)])
@@ -144,7 +143,7 @@ def print_map(locations):
 		print("".join(line))
 	print('-' * 100)
 
-# # todo: remove
+# # todo: remove for non example
 # boundaries_x, boundaries_y = (11, 7)
 
 robots_data = get_robots_data(file_path)
@@ -163,5 +162,3 @@ for robot_data in robots_data:
 
 
 print(print_robots_iterations_map(robots_data, 100))
-	
-
