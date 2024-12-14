@@ -92,8 +92,9 @@ def count_robots_in_quadrants(robots, time):
 def print_robots_iterations_map(robots, max_time):
 	for i in range(1, max_time):
 		final_locations = set(count_final_locations(robots, i))
+
 		t = defaultdict(int)
-		for _, y in final_locations:
+		for x, y in final_locations:
 			# print("#" * 10)
 			# print(x, y)
 			# break
