@@ -18,7 +18,7 @@ class Machine:
 
     # Enable unpacking by defining __iter__
     def __iter__(self):
-        return iter((self.button_a[0], self.button_a[1], self.button_b[0], self.button_b[1], self.prize))
+        return iter((self.button_a[0], self.button_a[1], self.button_b[0], self.button_b[1], self.prize[0], self.prize[1]))
 
 def parse_machine_behavior(machine_settings_str) -> Machine:
     # print("machine_settings_str")
@@ -36,10 +36,10 @@ def parse_machine_behavior(machine_settings_str) -> Machine:
     return Machine(
         (int(a_match.group(1)), int(a_match.group(2))),
         (int(b_match.group(1)), int(b_match.group(2))),
+        # (int(prize_match.group(1)), int(prize_match.group(2)))
         (int(prize_match.group(1)) + 10000000000000, int(prize_match.group(2)) + 10000000000000)
     )
 
-print("PROCESSING PART 1...")
 def get_machine_behaviors(file_path) -> list:
     print(f"Reading file {file_path}")
     with open(file_path, 'r') as file:
@@ -48,65 +48,30 @@ def get_machine_behaviors(file_path) -> list:
     machine_behaviors_strings = [lines[i:i+4] for i in range(0, len(lines), 4)]
     return [parse_machine_behavior(machine_behavior_string) for machine_behavior_string in machine_behaviors_strings]
 
-file_path = os.path.join(script_dir, 'inputs/input_d13_example1.txt')
-# file_path = os.path.join(script_dir, 'inputs/input_d13.txt')
+# file_path = os.path.join(script_dir, 'inputs/input_d13_example1.txt')
+file_path = os.path.join(script_dir, 'inputs/input_d13.txt')
+print("PROCESSING PART 1...")
 machine_settings = get_machine_behaviors(file_path)
 
+def is_whole_number(n):
+    return n % 1 == 0
 
-def min_or_none(values):
-    filtered_values = filter(None, values)
-    return min(filtered_values, default=None)
-
-def get_price(machine_settings) -> int | None:
-    cache = {}
-    def get_inner_price(a_count, b_count, machine_settings) -> int | None:
-        nonlocal cache
-        # if a_count > 100 or b_count > 100:
-        #     return None
-
-        # print(machine)
-        # print("iteration", a_count, b_count)
-        key = (a_count, b_count)
-        if key in cache:
-            return cache[key]
-
-        current_price = a_count * 3 + b_count * 1
-        b_ax, b_ay, b_bx, b_by, prize = machine_settings
-        current_coord = (b_ax * a_count  + b_bx * b_count, b_ay * a_count + b_by * b_count)
-        
-        # if a_count == 80 and b_count == 40:
-        #     print("found")
-        #     print(a_count, b_count)
-        #     print("prize", prize)
-        #     print("current price", current_price)
-        #     print("current coord", current_coord)
-
-        if current_coord == prize:
-            # print("found one")
-            return current_price
-
-        if current_coord[0] > prize[0] or current_coord[1] > prize[1]:
-            # print("overeached_prize_coord")
-            return
-        
-        r1 = get_inner_price(a_count + 1, b_count, machine_settings)
-        r2 = get_inner_price(a_count, b_count + 1, machine_settings)
-
-        final_result = min_or_none([r1, r2])
-        cache[key] = final_result
-
-        return min_or_none([r1, r2])
-    return get_inner_price(0, 0, machine_settings)
+def get_price_mathematically(machine_settings) -> int | None:
+    ax, ay, bx, by, px, py = machine_settings
+    b_count = (ay*px-ax*py)/(ay*bx-ax*by)
+    a_count = (py-b_count*by)/ay
+    if is_whole_number(a_count) and is_whole_number(b_count):
+        return int(a_count * 3 + b_count)
+    return None
 
 
 print("Machine settings")
 print("-" * 100)
 prices = []
 for machine in machine_settings:
-    print(machine)
-    result = get_price(machine)
-    if result:
-        prices.append(result)
-    print(result)
+    price = get_price_mathematically(machine)
+    if price:
+        prices.append(price)
+        print(price)
 
 print(f"Result1: {sum(prices)}")
