@@ -227,7 +227,7 @@ def process_robot_moves(map, moves):
 	for row in moves:
 		for s in row:
 			count += 1
-			if count > 9999999999999999:
+			if count > 10:
 				raise Exception("Stopped")
 			position = move_robot(position, s, map)
 			print("Move", s)
