@@ -4,8 +4,8 @@ from typing import Tuple, List
 
 script_dir = os.path.dirname(os.path.abspath(__file__))
 # file_path = os.path.join(script_dir, 'inputs/input_d15_example1.txt')
-# file_path = os.path.join(script_dir, 'inputs/input_d15_example2.txt')
-file_path = os.path.join(script_dir, 'inputs/input_d15_example3.txt')
+file_path = os.path.join(script_dir, 'inputs/input_d15_example2.txt')
+# file_path = os.path.join(script_dir, 'inputs/input_d15_example3.txt')
 # file_path = os.path.join(script_dir, 'inputs/input_d15.txt')
 
 @dataclass
@@ -68,19 +68,18 @@ def move_boxes_horizontally(box_position, dj, map):
 	i, j = box_position
 	nj = j + 2 * dj
 
-	dj2 = horizontal_edge_direction[value]
+	dj2 = horizontal_edge_direction[map[i][j]]
 	match map[i][nj]:
 		case ".":
+			map[i][j + dj + dj2] = map[i][j + dj]
 			map[i][j + dj] = map[i][j]
-			map[i][j + dj + dj2] = "]"
 			map[i][j] = "."
 			return True
 		case value if value in box_parts:
 			move_boxes_horizontally((i, nj), dj, map)
+			map[i][j + dj + dj2] = map[i][j + dj]
+			map[i][j + dj] = map[i][j]
 			map[i][j] = "."
-			map[i][j + dj] = "["
-			map[i][j + dj] = "["
-			map[i][nj] = "]"
 
 # is there any max load?
 def horizontal_move_possible_for_box(box_position, dj, map):
@@ -129,38 +128,47 @@ def vertical_move_possible(tile_position, di, map):
 			return all(checks)
 
 
-def move_boxes_vertically(box_position, di, map):
-	print("box_position", box_position)
-	i, j = box_position
+def move_boxes_vertically(box_part_position, di, map):
+	print("box_position", box_part_position)
+	i, j = box_part_position
 	ni = i + di
 	edge = map[i][j]
 	match map[ni][j]:
 		case "." if edge == "[":
-			map[i][j] = "."
-			map[i][j+1] = "."
 			map[ni][j] = "["
-			map[ni][j+1] = "]"
+			map[i][j] = "."
 			return True
 		case "." if edge == "]":
-			map[i][j] = "."
-			map[i][j-1] = "."
-			map[ni][j-1] = "["
 			map[ni][j] = "]"
+			map[i][j] = "."
 			return True
-		case "]":
-			print("moving ]")
-			move_boxes_horizontally((ni, j), di, map)
-			map[i][j] = "."
-			map[i][j-1] = "."
-			map[ni][j] = "]"
-			map[ni][j-1] = "["
 		case "[":
-			print("moving [")
-			move_boxes_horizontally((ni, j), di, map)
+			move_boxes_vertically((ni, j), di, map)
+			move_boxes_vertically((ni, j + 1), di, map)
+			map[ni][j] = "]"
 			map[i][j] = "."
-			map[i][j+1] = "."
+		case "]":
+			move_boxes_vertically((ni, j), di, map)
+			move_boxes_vertically((ni, j - 1), di, map)
 			map[ni][j] = "["
-			map[ni][j+1] = "]"
+			map[i][j] = "."
+		# case value if value in box_parts:
+		# 	dj2 = horizontal_edge_direction[map[ni][j]]
+
+		# 	move_boxes_vertically()
+		# 	print("moving ]")
+		# 	move_boxes_horizontally((ni, j), di, map)
+		# 	map[ni][j] = "]"
+		# 	map[ni][j-1] = "["
+		# 	map[i][j] = "."
+		# 	map[i][j-1] = "."
+		# case "[":
+		# 	print("moving [")
+		# 	move_boxes_horizontally((ni, j), di, map)
+		# 	map[ni][j] = "["
+		# 	map[ni][j+1] = "]"
+		# 	map[i][j] = "."
+		# 	map[i][j+1] = "."
 
 def move_robot(robot_position, move, map):
 	i, j = robot_position
@@ -172,10 +180,14 @@ def move_robot(robot_position, move, map):
 			return i, j
 		case value if value in box_parts:
 			horizontal_direction = is_horizontal_direction(direction)
-			# j_direction = horizontal_edge_direction[map[ni][nj]]
+			dj2 = horizontal_edge_direction[map[ni][nj]]
 			if horizontal_direction:
 				print("Horizontal")
-				if horizontal_move_possible_for_box((ni, nj), dj, map):
+				checks = [
+					horizontal_move_possible_for_box((ni, nj), dj, map),
+					# horizontal_move_possible_for_box((ni, nj + dj), dj, map)
+				]
+				if all(checks):
 					move_boxes_horizontally((ni, nj), dj, map)
 					print("moved horizontally")
 					map[i][j] = "."
@@ -185,8 +197,13 @@ def move_robot(robot_position, move, map):
 					print("Couldn't move horizontally")
 			else:
 				print("Vertical")
-				if vertical_move_possible((ni, nj), di, map):
+				checks = [
+					vertical_move_possible((ni, nj), di, map),
+					vertical_move_possible((ni, nj + dj2), di, map),
+				]
+				if all(checks):
 					move_boxes_vertically((ni, nj), di, map)
+					move_boxes_vertically((ni, nj+dj2), di, map)
 					print("moved vertically")
 					map[i][j] = "."
 					map[ni][nj] = "@"
@@ -210,7 +227,7 @@ def process_robot_moves(map, moves):
 	for row in moves:
 		for s in row:
 			count += 1
-			if count > 2:
+			if count > 9999999999999999:
 				raise Exception("Stopped")
 			position = move_robot(position, s, map)
 			print("Move", s)
@@ -223,6 +240,12 @@ def count_GPS(map):
 		for j, s in enumerate(row):
 			if s == "O":
 				yield i * 100 + j
+
+def count_widened_GPS(map):
+	for i, row in enumerate(map):
+		for j, s in enumerate(row):
+			if s == "[":
+				yield (i+1) * 100 + j
 
 widen_symbol = {
 	"#": "##",
@@ -246,6 +269,7 @@ widened_input_data = widen_input_data(input_data.map)
 for row in widened_input_data:
 	print("".join(row))
 map_after_processing = process_robot_moves(widened_input_data, input_data.moves)
+print(sum(count_widened_GPS(map_after_processing)))
 # for row in map_after_processing:
 # 	print("".join(row))
 # print("Result1: ", sum(count_GPS(map_after_processing)))
