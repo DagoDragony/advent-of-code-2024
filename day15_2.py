@@ -62,9 +62,7 @@ def is_horizontal_direction(direction):
 def is_vertical_direction(direction):
 	return direction[0] != 0
 
-def move_boxes_horizontally(box_position, dj, map, load = 1):
-	if load > 2:
-		return False
+def move_boxes_horizontally(box_position, dj, map):
 	i, j = box_position
 	nj = j + 2 * dj
 	match map[i][nj]:
@@ -94,13 +92,32 @@ def horizontal_move_possible_for_box(box_position, dj, map):
 		case ".":
 			return True
 		case "[":
-			if horizontal_move_possible_for_box((i, nj), dj, map):
-				map[i][j] = "."
-				map[i][j + dj] = "["
-				map[i][nj] = "]"
-				return True
-			else:
-				return False
+			return horizontal_move_possible_for_box((i, nj), dj, map)
+
+horizontal_edge_direction = {
+    "[": 1,
+    "]": -1
+}
+box_parts = set("[", "]")
+
+def vertical_move_possible(tile_position, di, map):
+	i, j = tile_position
+	ni = i + di
+	
+	# edge = map[i][j]
+	match map[ni][j]:
+		case "#":
+			return False
+		case ".":
+			return True
+		case value if value in box_parts:
+			jd = horizontal_edge_direction[value]
+			checks = [
+				vertical_move_possible((ni, j), di, map),
+				vertical_move_possible((ni, j + jd), di, map)
+			]
+			
+			return all(checks)
 
 
 def move_boxes_vertically(box_position, di, map, load=1):
@@ -154,12 +171,14 @@ def move_robot(robot_position, move, map):
 		case "[" | "]":
 			horizontal_direction = is_horizontal_direction(direction)
 			if horizontal_direction:
-				if move_boxes_horizontally((ni, nj), dj, map):
+				if horizontal_move_possible_for_box((ni, nj), dj, map):
+					move_boxes_horizontally((ni, nj), dj, map)
 					map[i][j] = "."
 					map[ni][nj] = "@"
 					return (ni, nj)
 			else:
-				if move_boxes_vertically((ni, nj), di, map):
+				if vertical_move_possible((ni, nj), di, map):
+					move_boxes_vertically((ni, nj), di, map)
 					map[i][j] = "."
 					map[ni][nj] = "@"
 					return (ni, nj)
