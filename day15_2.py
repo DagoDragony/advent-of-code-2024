@@ -4,8 +4,8 @@ from typing import Tuple, List
 
 script_dir = os.path.dirname(os.path.abspath(__file__))
 # file_path = os.path.join(script_dir, 'inputs/input_d15_example1.txt')
-# file_path = os.path.join(script_dir, 'inputs/input_d15_example2.txt')
-file_path = os.path.join(script_dir, 'inputs/input_d15.txt')
+file_path = os.path.join(script_dir, 'inputs/input_d15_example2.txt')
+# file_path = os.path.join(script_dir, 'inputs/input_d15.txt')
 
 @dataclass
 class RobotData:
@@ -45,7 +45,6 @@ def find_robot(map):
 				return (i, j)
 	raise Exception("No robot found")
 
-print("PROCESSING PART 1...")
 def get_input_data(file_path) -> 'InputData':
 	with open(file_path, 'r') as file:
 		return InputData.parse(file.read())
@@ -57,18 +56,87 @@ direction_translations = {
 	"<": (0, -1)
 }
 
-def move_boxes(box_position, direction, map) -> bool:
+def is_horizontal_direction(direction):
+	return direction[1] != 0
+
+def is_vertical_direction(direction):
+	return direction[0] != 0
+
+def move_boxes_horizontally(box_position, direction, load = 1):
+	if load > 2:
+		return False
 	i, j = box_position
 	di, dj = direction
-	ni, nj = i + di, j + dj
+	ni, nj = i + 2 * di, j + 2 * dj
 	match map[ni][nj]:
 		case "#":
 			return False
 		case ".":
 			map[i][j] = "."
+			map[i + di][j + dj] = "["
+			map[ni][nj] = "]"
+			return True
+		case "[":
+			if move_boxes_horizontally((ni, nj), direction, map, load+1):
+				map[i][j] = "."
+				map[i + di][j + dj] = "["
+				map[ni][nj] = "]"
+				return True
+			else:
+				return False
+
+def move_boxes_vertically(box_position, di, map, load=1):
+	if load > 2:
+		return False
+	i, j = box_position
+	ni = i + di
+	edge = map[i][j]
+	match map[ni][nj]:
+		case "#":
+			return False
+		case "." if edge == "[":
+			map[i][j] = "."
+			map[i][j+1] = "."
+			map[ni][j] = "["
+			map[ni][j+1] = "]"
+			return True
+		case "." if edge == "]":
+			map[i][j] = "."
+			map[i][j-1] = "."
+			map[ni][j] = "]"
+			map[ni][j+1] = "["
+			return True
+		case "]":
+			if move_boxes_horizontally((ni, j), di, map, load+1):
+				map[i][j] = "."
+				map[i][j-1] = "."
+				map[i + di][j + dj] = "["
+				map[ni][nj] = "]"
+				return True
+			else:
+				return False
+		case "[":
+			if move_boxes_horizontally((ni, nj), direction, map, load+1):
+				map[i][j] = "."
+				map[i + di][j + dj] = "["
+				map[ni][nj] = "]"
+				return True
+			else:
+				return False
+
+def move_boxes(box_position, direction, map) -> bool:
+	i, j = box_position
+	di, dj = direction
+	ni, nj = i + 2 * di, j + 2 * dj
+	match map[ni][nj]:
+		case "#":
+			return False
+		case ".":
+			map[i][j] = "."
+			map[i][j] = "."
 			map[ni][nj] = "O"
 			return True
-		case "O":
+		case "[":
 			if move_boxes((ni, nj), direction, map):
 				map[i][j] = "."
 				map[ni][nj] = "O"
@@ -99,12 +167,11 @@ def move_robot(position, move, map):
 			raise Exception(f"Unexpected value {map[ni][nj]}")
     
 
-def process_robot_moves(input: 'InputData'):
-	robot_coords = find_robot(input.map)
+def process_robot_moves(map, moves):
+	robot_coords = find_robot(map)
 	print("Initial robot coords", robot_coords)
-	map = [list(row) for row in input.map]
 	position = robot_coords
-	for row in input.moves:
+	for row in moves:
 		for s in row:
 			position = move_robot(position, s, map)
 			print("Move", s)
@@ -117,11 +184,30 @@ def count_GPS(map):
 		for j, s in enumerate(row):
 			if s == "O":
 				yield i * 100 + j
+
+widen_symbol = {
+	"#": "##",
+	".": "..",
+	"O": "[]",
+	"@": "@.",
+}
+
+def widen_input_data(map):
+	widened_map = []
+	for row in map:
+		line = []
+		for s in row:
+			line.extend(widen_symbol.get(s))
+		widened_map.append(line)
+	return widened_map
+
     
 input_data = get_input_data(file_path)
-input_data.print()
-map_after_processing = process_robot_moves(input_data)
-for row in map_after_processing:
+widened_input_data = widen_input_data(input_data.map)
+for row in widened_input_data:
 	print("".join(row))
-print("Result1: ", sum(count_GPS(map_after_processing)))
+map_after_processing = process_robot_moves(input_data)
+# for row in map_after_processing:
+# 	print("".join(row))
+# print("Result1: ", sum(count_GPS(map_after_processing)))
 
