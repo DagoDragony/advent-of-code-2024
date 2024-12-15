@@ -4,7 +4,8 @@ from typing import Tuple, List
 
 script_dir = os.path.dirname(os.path.abspath(__file__))
 # file_path = os.path.join(script_dir, 'inputs/input_d15_example1.txt')
-file_path = os.path.join(script_dir, 'inputs/input_d15_example2.txt')
+# file_path = os.path.join(script_dir, 'inputs/input_d15_example2.txt')
+file_path = os.path.join(script_dir, 'inputs/input_d15_example3.txt')
 # file_path = os.path.join(script_dir, 'inputs/input_d15.txt')
 
 @dataclass
@@ -63,42 +64,50 @@ def is_vertical_direction(direction):
 	return direction[0] != 0
 
 def move_boxes_horizontally(box_position, dj, map):
+	print("box_position", box_position)
 	i, j = box_position
 	nj = j + 2 * dj
+
+	dj2 = horizontal_edge_direction[value]
 	match map[i][nj]:
-		case "#":
-			return False
 		case ".":
+			map[i][j + dj] = map[i][j]
+			map[i][j + dj + dj2] = "]"
+			map[i][j] = "."
+			return True
+		case value if value in box_parts:
+			move_boxes_horizontally((i, nj), dj, map)
 			map[i][j] = "."
 			map[i][j + dj] = "["
+			map[i][j + dj] = "["
 			map[i][nj] = "]"
-			return True
-		case "[":
-			if move_boxes_horizontally((i, nj), dj, map, load+1):
-				map[i][j] = "."
-				map[i][j + dj] = "["
-				map[i][nj] = "]"
-				return True
-			else:
-				return False
 
 # is there any max load?
 def horizontal_move_possible_for_box(box_position, dj, map):
+	print("checking horizontal move")
 	i, j = box_position
 	nj = j + 2 * dj
 	match map[i][nj]:
 		case "#":
+			print("# Impossible")
 			return False
 		case ".":
+			print(". Possible")
 			return True
-		case "[":
-			return horizontal_move_possible_for_box((i, nj), dj, map)
+		case value if value in box_parts:
+			# dj = horizontal_edge_direction[value]
+			print("Found box, checking further")
+			result = horizontal_move_possible_for_box((i, nj), dj, map)
+			print(result)
+			return result
+		case value:
+			raise Exception(f"Unknown symbol {map[i][nj]}")
 
 horizontal_edge_direction = {
     "[": 1,
     "]": -1
 }
-box_parts = set("[", "]")
+box_parts = set(["[", "]"])
 
 def vertical_move_possible(tile_position, di, map):
 	i, j = tile_position
@@ -120,15 +129,12 @@ def vertical_move_possible(tile_position, di, map):
 			return all(checks)
 
 
-def move_boxes_vertically(box_position, di, map, load=1):
-	if load > 2:
-		return False
+def move_boxes_vertically(box_position, di, map):
+	print("box_position", box_position)
 	i, j = box_position
 	ni = i + di
 	edge = map[i][j]
 	match map[ni][j]:
-		case "#":
-			return False
 		case "." if edge == "[":
 			map[i][j] = "."
 			map[i][j+1] = "."
@@ -138,27 +144,23 @@ def move_boxes_vertically(box_position, di, map, load=1):
 		case "." if edge == "]":
 			map[i][j] = "."
 			map[i][j-1] = "."
-			map[ni][j] = "]"
 			map[ni][j-1] = "["
+			map[ni][j] = "]"
 			return True
 		case "]":
-			if move_boxes_horizontally((ni, j), di, map, load+1):
-				map[i][j] = "."
-				map[i][j-1] = "."
-				map[ni][j] = "]"
-				map[ni][j-1] = "["
-				return True
-			else:
-				return False
+			print("moving ]")
+			move_boxes_horizontally((ni, j), di, map)
+			map[i][j] = "."
+			map[i][j-1] = "."
+			map[ni][j] = "]"
+			map[ni][j-1] = "["
 		case "[":
-			if move_boxes_horizontally((ni, j), di, map, load+1):
-				map[i][j] = "."
-				map[i][j+1] = "."
-				map[ni][j] = "["
-				map[ni][j+1] = "]"
-				return True
-			else:
-				return False
+			print("moving [")
+			move_boxes_horizontally((ni, j), di, map)
+			map[i][j] = "."
+			map[i][j+1] = "."
+			map[ni][j] = "["
+			map[ni][j+1] = "]"
 
 def move_robot(robot_position, move, map):
 	i, j = robot_position
@@ -168,20 +170,29 @@ def move_robot(robot_position, move, map):
 	match map[ni][nj]:
 		case "#":
 			return i, j
-		case "[" | "]":
+		case value if value in box_parts:
 			horizontal_direction = is_horizontal_direction(direction)
+			# j_direction = horizontal_edge_direction[map[ni][nj]]
 			if horizontal_direction:
+				print("Horizontal")
 				if horizontal_move_possible_for_box((ni, nj), dj, map):
 					move_boxes_horizontally((ni, nj), dj, map)
+					print("moved horizontally")
 					map[i][j] = "."
 					map[ni][nj] = "@"
 					return (ni, nj)
+				else:
+					print("Couldn't move horizontally")
 			else:
+				print("Vertical")
 				if vertical_move_possible((ni, nj), di, map):
 					move_boxes_vertically((ni, nj), di, map)
+					print("moved vertically")
 					map[i][j] = "."
 					map[ni][nj] = "@"
 					return (ni, nj)
+				else:
+					print("Couldn't move vertically")
 			return (i, j)
 		case ".":
 			map[i][j] = "."
@@ -199,7 +210,7 @@ def process_robot_moves(map, moves):
 	for row in moves:
 		for s in row:
 			count += 1
-			if count > 10:
+			if count > 2:
 				raise Exception("Stopped")
 			position = move_robot(position, s, map)
 			print("Move", s)
