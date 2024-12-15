@@ -13,37 +13,22 @@ class RobotData:
 	initial_location: Tuple[int, int]
 	velocity: Tuple[int, int]
 
-	def __str__(self):
-		return f"p={self.initial_location} v={self.velocity}"
-
-	def __iter__(self):
-		return iter((self.initial_location[0], self.initial_location[1], self.velocity[0], self.velocity[1]))
-
 @dataclass
 class InputData:
 	map: List[List[str]]
 	moves: List[str]
 
-	def print(self):
-		for line in self.map:
-			print(line)
-		print()
-		for line in self.moves:
-			print(line)
-		print
- 
 	@staticmethod
-	def parse(str) -> 'InputData':
-		map_str, moves_str = str.split("\n\n")
+	def parse(text) -> 'InputData':
+		map_str, moves_str = text.split("\n\n")
 		map = [line.strip() for line in map_str.split("\n")]
-		moves = moves_str.strip().split("\n")
+		moves = moves_str.splitlines()
 		return InputData(map, moves)
 
 def find_robot(map):
-	for i, line in enumerate(map):
-		for j, s in enumerate(line):
-			if s == '@':
-				return (i, j)
+	for i, row in enumerate(map):
+		if '@' in row:
+			return (i, row.index('@'))
 	raise Exception("No robot found")
 
 def get_input_data(file_path) -> 'InputData':
@@ -64,7 +49,6 @@ def is_vertical_direction(direction):
 	return direction[0] != 0
 
 def move_boxes_horizontally(box_position, dj, map):
-	print("box_position", box_position)
 	i, j = box_position
 	nj = j + 2 * dj
 
@@ -83,21 +67,15 @@ def move_boxes_horizontally(box_position, dj, map):
 
 # is there any max load?
 def horizontal_move_possible_for_box(box_position, dj, map):
-	print("checking horizontal move")
 	i, j = box_position
 	nj = j + 2 * dj
 	match map[i][nj]:
 		case "#":
-			# print("# Impossible")
 			return False
 		case ".":
-			# print(". Possible")
 			return True
 		case value if value in box_parts:
-			# dj = horizontal_edge_direction[value]
-			# print("Found box, checking further")
 			result = horizontal_move_possible_for_box((i, nj), dj, map)
-			# print(result)
 			return result
 		case value:
 			raise Exception(f"Unknown symbol {map[i][nj]}")
@@ -111,8 +89,6 @@ box_parts = set(["[", "]"])
 def vertical_move_possible(tile_position, di, map):
 	i, j = tile_position
 	ni = i + di
-	
-	# edge = map[i][j]
 	match map[ni][j]:
 		case "#":
 			return False
@@ -127,9 +103,14 @@ def vertical_move_possible(tile_position, di, map):
 			
 			return all(checks)
 
+def move_box_part(box_part_position, new_location, map):
+	i, j = box_part_position
+	box_part = map[i][j]
+	ni, nj = new_location
+	map[ni][nj] = box_part
+	map[i][j] = "."
 
 def move_boxes_vertically(box_part_position, di, map):
-	print("box_position", box_part_position)
 	i, j = box_part_position
 	box_part = map[i][j]
 	ni = i + di
@@ -144,23 +125,6 @@ def move_boxes_vertically(box_part_position, di, map):
 			pass
 	map[ni][j] = box_part
 	map[i][j] = "."
-		# case value if value in box_parts:
-		# 	dj2 = horizontal_edge_direction[map[ni][j]]
-
-		# 	move_boxes_vertically()
-		# 	print("moving ]")
-		# 	move_boxes_horizontally((ni, j), di, map)
-		# 	map[ni][j] = "]"
-		# 	map[ni][j-1] = "["
-		# 	map[i][j] = "."
-		# 	map[i][j-1] = "."
-		# case "[":
-		# 	print("moving [")
-		# 	move_boxes_horizontally((ni, j), di, map)
-		# 	map[ni][j] = "["
-		# 	map[ni][j+1] = "]"
-		# 	map[i][j] = "."
-		# 	map[i][j+1] = "."
 
 def move_robot(robot_position, move, map):
 	i, j = robot_position
@@ -174,21 +138,15 @@ def move_robot(robot_position, move, map):
 			horizontal_direction = is_horizontal_direction(direction)
 			dj2 = horizontal_edge_direction[map[ni][nj]]
 			if horizontal_direction:
-				print("Horizontal")
 				checks = [
 					horizontal_move_possible_for_box((ni, nj), dj, map),
-					# horizontal_move_possible_for_box((ni, nj + dj), dj, map)
 				]
 				if all(checks):
 					move_boxes_horizontally((ni, nj), dj, map)
-					print("moved horizontally")
 					map[i][j] = "."
 					map[ni][nj] = "@"
 					return (ni, nj)
-				else:
-					print("Couldn't move horizontally")
 			else:
-				print("Vertical")
 				checks = [
 					vertical_move_possible((ni, nj), di, map),
 					vertical_move_possible((ni, nj + dj2), di, map),
@@ -196,12 +154,9 @@ def move_robot(robot_position, move, map):
 				if all(checks):
 					move_boxes_vertically((ni, nj), di, map)
 					move_boxes_vertically((ni, nj+dj2), di, map)
-					print("moved vertically")
 					map[i][j] = "."
 					map[ni][nj] = "@"
 					return (ni, nj)
-				else:
-					print("Couldn't move vertically")
 			return (i, j)
 		case ".":
 			map[i][j] = "."
@@ -213,18 +168,10 @@ def move_robot(robot_position, move, map):
 
 def process_robot_moves(map, moves):
 	robot_coords = find_robot(map)
-	print("Initial robot coords", robot_coords)
 	position = robot_coords
-	count = 0 
 	for row in moves:
 		for s in row:
-			count += 1
-			if count > 9999999:
-				raise Exception("Stopped")
 			position = move_robot(position, s, map)
-			print("Move", s)
-			for row in map:
-				print("".join(row))
 	return map
 
 def count_GPS(map):
@@ -261,7 +208,4 @@ widened_input_data = widen_input_data(input_data.map)
 for row in widened_input_data:
 	print("".join(row))
 map_after_processing = process_robot_moves(widened_input_data, input_data.moves)
-print(sum(count_widened_GPS(map_after_processing)))
-# for row in map_after_processing:
-# 	print("".join(row))
-# print("Result1: ", sum(count_GPS(map_after_processing)))
+print(f"Result2: {sum(count_widened_GPS(map_after_processing))}")
