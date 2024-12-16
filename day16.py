@@ -3,12 +3,12 @@ from dataclasses import dataclass
 from typing import Tuple, List
 import sys
 
-sys.setrecursionlimit(2000)
+sys.setrecursionlimit(10000)
 
 
-# FILE_PATH = 'inputs/input_d16_example1.txt'
+FILE_PATH = 'inputs/input_d16_example1.txt'
 # FILE_PATH = 'inputs/input_d16_example2.txt'
-FILE_PATH = 'inputs/input_d16.txt'
+# FILE_PATH = 'inputs/input_d16.txt'
 
 EAST_DIRECTION = (0, 1)
 ROTATE_CLOCKWISE = {
@@ -39,8 +39,8 @@ def next_tile(position, delta):
 cache = {}
 def make_a_move(position, direction, map, visited, score):
 	key = (position, direction)
-	if key in cache:
-		return cache[key]
+	# if key in cache:
+	# 	return cache[key]
 
 	# cache.add((position, direction))
 	i, j = position
