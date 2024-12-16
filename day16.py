@@ -17,18 +17,25 @@ LEFT=(0, -1)
 UP=(-1, 0)
 DOWN=(1, 0)
 
+ALL_DIRECTIONS = [
+	RIGHT,
+	LEFT,
+	UP,
+	DOWN,
+]
+
 EAST_DIRECTION = (0, 1)
 ROTATE_CLOCKWISE = {
-	(0, 1): (1, 0),
-	(1, 0): (0, -1),
-	(0, -1): (-1, 0),
-	(-1, 0): (0, 1)
+	UP: RIGHT,
+	RIGHT: DOWN,
+	DOWN: LEFT,
+	LEFT: UP 
 }
 ROTATE_COUNTERCLOCKWISE = {
-	(0, 1): (-1, 0),
-	(-1, 0): (0, -1),
-	(0, -1): (1, 0),
-	(1, 0): (0, 1)
+	UP: LEFT,
+	LEFT: DOWN,
+	DOWN: RIGHT,
+	RIGHT:  UP
 }
 
 def get_map(file_path) -> List[str]:
@@ -83,6 +90,40 @@ def make_a_move(pos, direction, map, visited, score):
 			return
 		case _:
 			return
+
+def get_all_direction(pos):
+	i, j = pos
+	return [(i + di, j + dj) for di, dj in ALL_DIRECTIONS]
+
+
+best_paths = set()
+def walk_to_bests(pos, path, final_score, map):
+	i, j = pos
+	if map[i][j] == "E":
+		return len(path)
+
+	def check_if_valid(new_pos):
+		ni, nj = new_pos
+		checks = [
+			new_pos in price,
+			price[ni][nj] < final_score
+		]
+		return all(checks)
+	
+	all_directions = get_all_direction(pos)
+	positions_to_go = [new_pos for new_pos in all_directions if check_if_valid(new_pos)]
+	for pos_to_go in positions_to_go:
+		walk_to_bests(pos_to_go, list(path) + pos + 1, final_score, map)
+
+
+
+
+
+	walk_to_bests
+	
+
+def get_best_paths_tile_count(start, map): ...
+
 
 def get_score(map):
 	start = (len(map)-2, 1)
