@@ -1,179 +1,84 @@
 import os
 from dataclasses import dataclass
 from typing import Tuple, List
+import sys
 
-script_dir = os.path.dirname(os.path.abspath(__file__))
-file_path = os.path.join(script_dir, 'inputs/input_d16_example1.txt')
-# file_path = os.path.join(script_dir, 'inputs/input_d16.txt')
+sys.setrecursionlimit(2000)
 
 
-HORIZONTAL_EDGE_DIRECTION = {
-    "[": 1,
-    "]": -1
+# FILE_PATH = 'inputs/input_d16_example1.txt'
+# FILE_PATH = 'inputs/input_d16_example2.txt'
+FILE_PATH = 'inputs/input_d16.txt'
+
+EAST_DIRECTION = (0, 1)
+ROTATE_CLOCKWISE = {
+	(0, 1): (1, 0),
+	(1, 0): (0, -1),
+	(0, -1): (-1, 0),
+	(-1, 0): (0, 1)
 }
-BOX_PARTS = set(["[", "]"])
-DIRECTION_TRANSLATIONS = {
-	"^": (-1, 0),
-	"v": (1, 0),
-	">": (0, 1),
-	"<": (0, -1)
+ROTATE_COUNTERCLOCKWISE = {
+	(0, 1): (-1, 0),
+	(-1, 0): (0, -1),
+	(0, -1): (1, 0),
+	(1, 0): (0, 1)
 }
-WIDEN_SYMBOL = {
-	"#": "##",
-	".": "..",
-	"O": "[]",
-	"@": "@.",
-}
-
-def find_robot(map):
-	for i, row in enumerate(map):
-		if '@' in row:
-			return (i, row.index('@'))
-	raise Exception("No robot found")
 
 def get_map(file_path) -> List[str]:
-	with open(file_path, 'r') as file:
+	script_dir = os.path.dirname(os.path.abspath(__file__))
+	full_path = os.path.join(script_dir, file_path)
+	with open(full_path, 'r') as file:
 		return file.read().splitlines()
 
-def is_horizontal_direction(direction):
-	return direction[1] != 0
 
-def is_vertical_direction(direction):
-	return direction[0] != 0
-
-def move_boxes_horizontally(box_pos, dj, map):
-	i, j = box_pos
-	nj = j + 2 * dj
-
-	dj2 = HORIZONTAL_EDGE_DIRECTION[map[i][j]]
-	match map[i][nj]:
-		case ".":
-			map[i][j + dj + dj2] = map[i][j + dj]
-			map[i][j + dj] = map[i][j]
-			map[i][j] = "."
-			return True
-		case value if value in BOX_PARTS:
-			move_boxes_horizontally((i, nj), dj, map)
-			map[i][j + dj + dj2] = map[i][j + dj]
-			map[i][j + dj] = map[i][j]
-			map[i][j] = "."
-
-# is there any max load?
-def horizontal_move_possible_for_box(box_pos, dj, map):
-	i, j = box_pos
-	nj = j + 2 * dj
-	match map[i][nj]:
-		case "#":
-			return False
-		case ".":
-			return True
-		case value if value in BOX_PARTS:
-			result = horizontal_move_possible_for_box((i, nj), dj, map)
-			return result
-		case value:
-			raise Exception(f"Unknown symbol {map[i][nj]}")
-
-def vertical_move_possible(tile_pos, di, map):
-	i, j = tile_pos
-	ni = i + di
-	match map[ni][j]:
-		case "#":
-			return False
-		case ".":
-			return True
-		case value if value in BOX_PARTS:
-			jd = HORIZONTAL_EDGE_DIRECTION[value]
-			return all([
-				vertical_move_possible((ni, j), di, map),
-				vertical_move_possible((ni, j + jd), di, map)
-			])
-
-def move_box_part(position, delta, map):
+def next_tile(position, delta):
 	i, j = position
 	di, dj = delta
-	map[i + di][j + dj] = map[i][j]
-	map[i][j] = "."
+	return (i + di, j + dj)
 
-def move_boxes_vertically(box_part_pos, di, map):
-	i, j = box_part_pos
-	ni = i + di
-	if map[ni][j] in BOX_PARTS:
-		dj2 = HORIZONTAL_EDGE_DIRECTION[map[ni][j]]
-		move_boxes_vertically((ni, j), di, map)
-		move_boxes_vertically((ni, j + dj2), di, map)
-	move_box_part(box_part_pos, (di, 0), map)
+cache = {}
+def make_a_move(position, direction, map, visited, score):
+	key = (position, direction)
+	if key in cache:
+		return cache[key]
 
-def move_robot(robot_pos, move, map):
-	i, j = robot_pos
-	direction = DIRECTION_TRANSLATIONS.get(move)
-	di, dj = direction
-	ni, nj = i + di, j + dj
-	match map[ni][nj]:
-		case "#":
-			return i, j
-		case value if value in BOX_PARTS:
-			horizontal_direction = is_horizontal_direction(direction)
-			dj2 = HORIZONTAL_EDGE_DIRECTION[map[ni][nj]]
-			if horizontal_direction:
-				checks = [
-					horizontal_move_possible_for_box((ni, nj), dj, map),
-				]
-				if all(checks):
-					move_boxes_horizontally((ni, nj), dj, map)
-					map[i][j] = "."
-					map[ni][nj] = "@"
-					return (ni, nj)
-			else:
-				# vertical direction
-				checks = [
-					vertical_move_possible((ni, nj), di, map),
-					vertical_move_possible((ni, nj + dj2), di, map),
-				]
-				if all(checks):
-					move_boxes_vertically((ni, nj), di, map)
-					move_boxes_vertically((ni, nj+dj2), di, map)
-					map[i][j] = "."
-					map[ni][nj] = "@"
-					return (ni, nj)
-			return (i, j)
-		case ".":
-			map[i][j] = "."
-			map[ni][nj] = "@"
-			return (ni, nj)
+	# cache.add((position, direction))
+	i, j = position
+	if (i, j) in visited:
+		return None
+	visited.add((i, j))
+
+	# print("moved into", position)
+	# print("found", map[i][j])
+	match map[i][j]:
+		case "E":
+			# print("End")
+			return score
+		case v if v != "#":
+			clockwise = ROTATE_CLOCKWISE[direction]
+			counterclockwise = ROTATE_COUNTERCLOCKWISE[direction]
+			possible_scores = [score for score in  [
+				make_a_move(next_tile(position, direction), direction, map, set(visited), score + 1),
+				make_a_move(next_tile(position, clockwise), clockwise, map, set(visited), score + 1000 + 1),
+				make_a_move(next_tile(position, counterclockwise), counterclockwise, map, set(visited), score + 1000 + 1),
+			] if score]
+			# print("Scores", possible_scores)
+			final_score = min(possible_scores) if possible_scores else None
+			cache[key] = final_score
+			return final_score
 		case _:
-			raise Exception(f"Unexpected value {map[ni][nj]}")
-    
-
-def process_robot_moves(map, moves):
-	robot_coords = find_robot(map)
-	position = robot_coords
-	for s in "".join(moves):
-		position = move_robot(position, s, map)
-	return map
-
-def count_widened_GPS(map):
-	for i, row in enumerate(map):
-		for j, s in enumerate(row):
-			if s == "[":
-				yield i * 100 + j
-
-def widen_input_data(map):
-	widened_map = []
-	for row in map:
-		line = []
-		for s in row:
-			line.extend(WIDEN_SYMBOL.get(s))
-		widened_map.append(line)
-	return widened_map
+			cache[key] = None
+			return None
 
 def get_score(map):
 	start = (len(map)-2, 1)
 	print(map[start[0]][start[1]])
 	end = (1, len(map)-2)
 	print(map[end[0]][end[1]])
+	return make_a_move(start, EAST_DIRECTION, map, set(), 0)
 
 def main():
-	race_map = get_map(file_path)
+	race_map = get_map(FILE_PATH)
 	for row in race_map:
 		print(row)
 	print(f"Result1: {get_score(race_map)}")
@@ -186,4 +91,4 @@ def main():
 	# print(f"Result2: {gps_sum}")
 
 if __name__ == "__main__":
-    main()
+	main()
