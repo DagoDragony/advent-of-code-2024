@@ -2,13 +2,14 @@ import os
 from dataclasses import dataclass
 from typing import Tuple, List
 import sys
+from enum import Enum
 
 sys.setrecursionlimit(10000)
 
 
-FILE_PATH = 'inputs/input_d16_example1.txt'
+# FILE_PATH = 'inputs/input_d16_example1.txt'
 # FILE_PATH = 'inputs/input_d16_example2.txt'
-# FILE_PATH = 'inputs/input_d16.txt'
+FILE_PATH = 'inputs/input_d16.txt'
 
 EAST_DIRECTION = (0, 1)
 ROTATE_CLOCKWISE = {
@@ -36,11 +37,22 @@ def next_tile(position, delta):
 	di, dj = delta
 	return (i + di, j + dj)
 
+class State(Enum):
+    NO_PATH = 1
+    BACK_IN_PATH = 2
+    REACHED_END = 3
+
+@dataclass
+class NodeStatus:
+    state: State
+    value: int
+
 cache = {}
 def make_a_move(position, direction, map, visited, score):
 	key = (position, direction)
-	# if key in cache:
-	# 	return cache[key]
+	if key in cache:
+		if cache[key] != None and cache[key] < score:
+			return cache[key]
 
 	# cache.add((position, direction))
 	i, j = position
@@ -52,7 +64,7 @@ def make_a_move(position, direction, map, visited, score):
 	# print("found", map[i][j])
 	match map[i][j]:
 		case "E":
-			# print("End")
+			NodeStatus(State.REACHED_END, score)
 			return score
 		case v if v != "#":
 			clockwise = ROTATE_CLOCKWISE[direction]
@@ -64,10 +76,10 @@ def make_a_move(position, direction, map, visited, score):
 			] if score]
 			# print("Scores", possible_scores)
 			final_score = min(possible_scores) if possible_scores else None
-			cache[key] = final_score
+			cache[key] = NodeStatus(State.BACK_IN_PATH)
 			return final_score
 		case _:
-			cache[key] = None
+			cache[key] = NodeStatus(State.NO_PATH)
 			return None
 
 def get_score(map):
