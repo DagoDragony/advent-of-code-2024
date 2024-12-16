@@ -3,10 +3,8 @@ from dataclasses import dataclass
 from typing import Tuple, List
 
 script_dir = os.path.dirname(os.path.abspath(__file__))
-# file_path = os.path.join(script_dir, 'inputs/input_d15_example1.txt')
-# file_path = os.path.join(script_dir, 'inputs/input_d15_example2.txt')
-# file_path = os.path.join(script_dir, 'inputs/input_d15_example3.txt')
-file_path = os.path.join(script_dir, 'inputs/input_d15.txt')
+file_path = os.path.join(script_dir, 'inputs/input_d16_example1.txt')
+# file_path = os.path.join(script_dir, 'inputs/input_d16.txt')
 
 
 HORIZONTAL_EDGE_DIRECTION = {
@@ -27,27 +25,15 @@ WIDEN_SYMBOL = {
 	"@": "@.",
 }
 
-@dataclass
-class InputData:
-	map: List[List[str]]
-	moves: List[str]
-
-	@staticmethod
-	def parse(text) -> 'InputData':
-		map_str, moves_str = text.split("\n\n")
-		map = [line.strip() for line in map_str.split("\n")]
-		moves = moves_str.splitlines()
-		return InputData(map, moves)
-
 def find_robot(map):
 	for i, row in enumerate(map):
 		if '@' in row:
 			return (i, row.index('@'))
 	raise Exception("No robot found")
 
-def get_input_data(file_path) -> 'InputData':
+def get_map(file_path) -> List[str]:
 	with open(file_path, 'r') as file:
-		return InputData.parse(file.read())
+		return file.read().splitlines()
 
 def is_horizontal_direction(direction):
 	return direction[1] != 0
@@ -180,14 +166,24 @@ def widen_input_data(map):
 		widened_map.append(line)
 	return widened_map
 
+def get_score(map):
+	start = (len(map)-2, 1)
+	print(map[start[0]][start[1]])
+	end = (1, len(map)-2)
+	print(map[end[0]][end[1]])
+
 def main():
-	input_data = get_input_data(file_path)
-	widened_input_data = widen_input_data(input_data.map)
-	for row in widened_input_data:
-		print("".join(row))
-	map_after_processing = process_robot_moves(widened_input_data, input_data.moves)
-	gps_sum = sum(count_widened_GPS(map_after_processing))
-	print(f"Result2: {gps_sum}")
+	race_map = get_map(file_path)
+	for row in race_map:
+		print(row)
+	print(f"Result1: {get_score(race_map)}")
+
+	# widened_input_data = widen_input_data(input_data.map)
+	# for row in widened_input_data:
+	# 	print("".join(row))
+	# map_after_processing = process_robot_moves(widened_input_data, input_data.moves)
+	# gps_sum = sum(count_widened_GPS(map_after_processing))
+	# print(f"Result2: {gps_sum}")
 
 if __name__ == "__main__":
     main()
