@@ -6,7 +6,7 @@ import time
 import sys
 
 
-sys.setrecursionlimit(5000)
+sys.setrecursionlimit(10000)
 
 # FILE_PATH = 'inputs/input_d16_example1.txt'
 FILE_PATH = 'inputs/input_d16_example2.txt'
@@ -95,31 +95,28 @@ def get_all_direction(pos):
 	i, j = pos
 	return [(i + di, j + dj) for di, dj in ALL_DIRECTIONS]
 
-
-best_paths = set()
+# visited = set()
 def walk_to_bests(pos, path, final_score, map):
 	i, j = pos
+	# visited.add(pos)
 	if map[i][j] == "E":
-		return len(path)
+		return path
 
 	def check_if_valid(new_pos):
-		ni, nj = new_pos
-		checks = [
-			new_pos in price,
-			price[ni][nj] < final_score
-		]
-		return all(checks)
+		result = new_pos in price and price[new_pos] < final_score # and not pos in visited
+		# if result:
+		# 	print("position to go", new_pos, price.get(new_pos))
+		return result
 	
 	all_directions = get_all_direction(pos)
-	positions_to_go = [new_pos for new_pos in all_directions if check_if_valid(new_pos)]
-	for pos_to_go in positions_to_go:
-		walk_to_bests(pos_to_go, list(path) + pos + 1, final_score, map)
+	positions_to_go = [ new_pos for new_pos in all_directions if check_if_valid(new_pos)]
+	# time.sleep(0.5)
 
-
-
-
-
-	walk_to_bests
+	success_paths = filter(lambda x: x != None, [walk_to_bests(pos_to_go, path | { pos }, final_score, map) for pos_to_go in positions_to_go])
+	if not success_paths:
+		return None
+	else:
+		return [position for path in success_paths for position in path]
 	
 
 def get_best_paths_tile_count(start, map): ...
@@ -133,7 +130,7 @@ def get_score(map):
 	make_a_move(start, EAST_DIRECTION, [list(row) for row in map], set(), 0)
 
 	final_price = price[end]
-	tile_count = final_price % 1000 + 1
+	tile_count = walk_to_bests(start, set(), final_price, map)
 	return (final_price, tile_count)
 
 def main():
@@ -143,6 +140,7 @@ def main():
 	price, tile_count = get_score(race_map)
 	print(f"Result1: {price}")
 	print(f"Result2: {tile_count}")
+
 
 if __name__ == "__main__":
 	main()
