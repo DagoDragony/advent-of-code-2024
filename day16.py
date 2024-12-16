@@ -3,6 +3,10 @@ from dataclasses import dataclass
 from typing import Tuple, List
 from enum import Enum
 import time
+import sys
+
+
+sys.setrecursionlimit(5000)
 
 # FILE_PATH = 'inputs/input_d16_example1.txt'
 FILE_PATH = 'inputs/input_d16_example2.txt'
@@ -50,152 +54,54 @@ class NodeStatus:
     value: int = 10**10
 
 cache = {}
-
-def make_a_move(position, direction, map, visited, score):
-	# print("position", position)
-	i, j = position
+price = {}
+def make_a_move(pos, direction, map, visited, score):
+	i, j = pos
 	symbol = map[i][j]
 	if symbol == '#':
 		return None
 
-	key = (position, direction)
-	if key in cache:
-		# if cache[key].state == State.NO_PATH:
-		# 	return None
-		if cache[key].state == State.REACHED_END and cache[key].value < score:
-			return cache[key].value
+	if pos in price:
+		if price[pos] > score:
+			# add cheaper score to this cell
+			price[pos] = score
+		else:
+			return None
+	else:
+		price[pos] = score
 
-	# cache.add((position, direction))
-	if position in visited:
-		return None
-	visited.add(position)
-
-	# try:
-	# 	symbol = map[i][j]
-	# except Exception:
-	# 	print((i, j))
-	# 	print(len(map), len(map[0]))
-	# 	print(map)
-	# 	raise
-
-	if symbol != 'E' and symbol != 'S':
-		match direction:
-			case v if v == LEFT:
-				map[i][j] = ">"
-				# print(">")
-			case v if v == RIGHT:
-				map[i][j] = "<"
-				# print("<")
-			case v if v == UP:
-				map[i][j] = "^"
-				# print("^")
-			case v if v == DOWN:
-				map[i][j] = "v"
-				# print("v")
-	
-	for _, row in enumerate(map):
-		line = ""
-		for _, s in enumerate(row):
-			line = line + s
-		print(line)
-	# time.sleep(0.5)
-
-	# print("moved into", position)
-	# print("found", map[i][j])
 	match symbol:
 		case "E":
-			cache[key] = NodeStatus(State.REACHED_END, score)
-			return score
+			# cache[key] = NodeStatus(State.REACHED_END, score)
+			return
 		case v if v != "#":
 			clockwise = ROTATE_CLOCKWISE[direction]
 			counterclockwise = ROTATE_COUNTERCLOCKWISE[direction]
-			possible_scores = [score for score in  [
-				make_a_move(next_tile(position, direction), direction, map, visited.copy(), score + 1),
-				make_a_move(next_tile(position, clockwise), clockwise, map, visited.copy(), score + 1000 + 1),
-				make_a_move(next_tile(position, counterclockwise), counterclockwise, map, visited.copy(), score + 1000 + 1),
-			] if score]
-			# print("Scores", possible_scores)
-			final_score = min(possible_scores) if possible_scores else None
-			cache[key] = NodeStatus(State.BACK_IN_PATH)
-			return final_score
+			make_a_move(next_tile(pos, direction), direction, map, visited.copy(), score + 1),
+			make_a_move(next_tile(pos, clockwise), clockwise, map, visited.copy(), score + 1000 + 1),
+			make_a_move(next_tile(pos, counterclockwise), counterclockwise, map, visited.copy(), score + 1000 + 1),
+			return
 		case _:
-			cache[key] = NodeStatus(State.NO_PATH)
-			return None
-
-def make_a_move2(position, direction, map, visited, score):
-	symbol = map[i][j]
-	key = (position, direction)
-	if symbol == '#':
-		cache[key] = NodeStatus(State.NO_PATH)
-		return None
-
-	if key in cache:
-		if cache[key].state == State.REACHED_END and cache[key].value < score:
-			return cache[key].value
-
-	# cache.add((position, direction))
-	i, j = position
-	if position in visited:
-		return None
-	visited.add((i, j))
-	if symbol != 'E' and symbol != 'S':
-		match direction:
-			case v if v == LEFT:
-				map[i][j] = ">"
-				# print(">")
-			case v if v == RIGHT:
-				map[i][j] = "<"
-				# print("<")
-			case v if v == UP:
-				map[i][j] = "^"
-				# print("^")
-			case v if v == DOWN:
-				map[i][j] = "v"
-				# print("v")
-
-	for i, row in enumerate(map):
-		line = ""
-		for j, s in enumerate(row):
-			line = line + s
-			# if (i, j) in visited and not map[i][j] == 'E':
-			# 	line = line + s
-			# else:
-		print(line)
-
-
-	# print("moved into", position)
-	# print("found", map[i][j])
-	match symbol:
-		case "E":
-			cache[key] = NodeStatus(State.REACHED_END, score)
-			return score
-		case _:
-			clockwise = ROTATE_CLOCKWISE[direction]
-			counterclockwise = ROTATE_COUNTERCLOCKWISE[direction]
-			possible_scores = [score for score in  [
-				make_a_move(next_tile(position, direction), direction, map, visited.copy(), score + 1),
-				make_a_move(next_tile(position, clockwise), clockwise, map, visited.copy(), score + 1000 + 1),
-				make_a_move(next_tile(position, counterclockwise), counterclockwise, map, visited.copy(), score + 1000 + 1),
-			] if score]
-			# print("Scores", possible_scores)
-			final_score = min(possible_scores) if possible_scores else None
-			cache[key] = NodeStatus(State.BACK_IN_PATH)
-			return final_score
-		# case _:
-		# 	return None
+			return
 
 def get_score(map):
 	start = (len(map)-2, 1)
 	print(map[start[0]][start[1]])
 	end = (1, len(map)-2)
 	print(map[end[0]][end[1]])
-	return make_a_move(start, EAST_DIRECTION, [list(row) for row in map], set(), 0)
+	make_a_move(start, EAST_DIRECTION, [list(row) for row in map], set(), 0)
+
+	final_price = price[end]
+	tile_count = final_price % 1000 + 1
+	return (final_price, tile_count)
 
 def main():
 	race_map = get_map(FILE_PATH)
 	for row in race_map:
 		print(row)
-	print(f"Result1: {get_score(race_map)}")
+	price, tile_count = get_score(race_map)
+	print(f"Result1: {price}")
+	print(f"Result2: {tile_count}")
 
 if __name__ == "__main__":
 	main()
