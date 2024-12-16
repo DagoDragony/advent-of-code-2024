@@ -2,6 +2,7 @@ import os
 from dataclasses import dataclass
 from typing import Tuple, List
 from enum import Enum
+import time
 
 # FILE_PATH = 'inputs/input_d16_example1.txt'
 FILE_PATH = 'inputs/input_d16_example2.txt'
@@ -51,19 +52,23 @@ class NodeStatus:
 cache = {}
 
 def make_a_move(position, direction, map, visited, score):
-	print("position", position)
+	# print("position", position)
+	i, j = position
+	symbol = map[i][j]
+	if symbol == '#':
+		return None
+
 	key = (position, direction)
 	if key in cache:
-		if cache[key].state == State.NO_PATH:
-			return None
+		# if cache[key].state == State.NO_PATH:
+		# 	return None
 		if cache[key].state == State.REACHED_END and cache[key].value < score:
 			return cache[key].value
 
 	# cache.add((position, direction))
-	i, j = position
 	if position in visited:
 		return None
-	visited.add((i, j))
+	visited.add(position)
 
 	# try:
 	# 	symbol = map[i][j]
@@ -73,33 +78,31 @@ def make_a_move(position, direction, map, visited, score):
 	# 	print(map)
 	# 	raise
 
-	# if symbol != 'E' and symbol != 'S' != "#":
-	# 	match direction:
-	# 		case v if v == LEFT:
-	# 			map[i][j] = ">"
-	# 			# print(">")
-	# 		case v if v == RIGHT:
-	# 			map[i][j] = "<"
-	# 			# print("<")
-	# 		case v if v == UP:
-	# 			map[i][j] = "^"
-	# 			# print("^")
-	# 		case v if v == DOWN:
-	# 			map[i][j] = "v"
-	# 			# print("v")
+	if symbol != 'E' and symbol != 'S':
+		match direction:
+			case v if v == LEFT:
+				map[i][j] = ">"
+				# print(">")
+			case v if v == RIGHT:
+				map[i][j] = "<"
+				# print("<")
+			case v if v == UP:
+				map[i][j] = "^"
+				# print("^")
+			case v if v == DOWN:
+				map[i][j] = "v"
+				# print("v")
 	
-	# for i, row in enumerate(map):
-	# 	line = ""
-	# 	for j, s in enumerate(row):
-	# 		line = line + s
-	# 		# if (i, j) in visited and not map[i][j] == 'E':
-	# 		# 	line = line + s
-	# 		# else:
-	# 	print(line)
+	for _, row in enumerate(map):
+		line = ""
+		for _, s in enumerate(row):
+			line = line + s
+		print(line)
+	# time.sleep(0.5)
 
 	# print("moved into", position)
 	# print("found", map[i][j])
-	match map[i][j]:
+	match symbol:
 		case "E":
 			cache[key] = NodeStatus(State.REACHED_END, score)
 			return score
@@ -120,33 +123,35 @@ def make_a_move(position, direction, map, visited, score):
 			return None
 
 def make_a_move2(position, direction, map, visited, score):
+	symbol = map[i][j]
 	key = (position, direction)
+	if symbol == '#':
+		cache[key] = NodeStatus(State.NO_PATH)
+		return None
+
 	if key in cache:
-		if cache[key].state == State.NO_PATH:
-			return None
 		if cache[key].state == State.REACHED_END and cache[key].value < score:
 			return cache[key].value
 
 	# cache.add((position, direction))
 	i, j = position
-	# symbol = map[i][j]
 	if position in visited:
 		return None
 	visited.add((i, j))
-	# if symbol != 'E' and symbol != 'S':
-	# 	match direction:
-	# 		case v if v == LEFT:
-	# 			map[i][j] = ">"
-	# 			# print(">")
-	# 		case v if v == RIGHT:
-	# 			map[i][j] = "<"
-	# 			# print("<")
-	# 		case v if v == UP:
-	# 			map[i][j] = "^"
-	# 			# print("^")
-	# 		case v if v == DOWN:
-	# 			map[i][j] = "v"
-	# 			# print("v")
+	if symbol != 'E' and symbol != 'S':
+		match direction:
+			case v if v == LEFT:
+				map[i][j] = ">"
+				# print(">")
+			case v if v == RIGHT:
+				map[i][j] = "<"
+				# print("<")
+			case v if v == UP:
+				map[i][j] = "^"
+				# print("^")
+			case v if v == DOWN:
+				map[i][j] = "v"
+				# print("v")
 
 	for i, row in enumerate(map):
 		line = ""
@@ -160,11 +165,11 @@ def make_a_move2(position, direction, map, visited, score):
 
 	# print("moved into", position)
 	# print("found", map[i][j])
-	match map[i][j]:
+	match symbol:
 		case "E":
 			cache[key] = NodeStatus(State.REACHED_END, score)
 			return score
-		case v if v != "#":
+		case _:
 			clockwise = ROTATE_CLOCKWISE[direction]
 			counterclockwise = ROTATE_COUNTERCLOCKWISE[direction]
 			possible_scores = [score for score in  [
@@ -176,9 +181,8 @@ def make_a_move2(position, direction, map, visited, score):
 			final_score = min(possible_scores) if possible_scores else None
 			cache[key] = NodeStatus(State.BACK_IN_PATH)
 			return final_score
-		case _:
-			cache[key] = NodeStatus(State.NO_PATH)
-			return None
+		# case _:
+		# 	return None
 
 def get_score(map):
 	start = (len(map)-2, 1)
