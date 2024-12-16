@@ -1,11 +1,7 @@
 import os
 from dataclasses import dataclass
 from typing import Tuple, List
-import sys
 from enum import Enum
-
-sys.setrecursionlimit(10000)
-
 
 # FILE_PATH = 'inputs/input_d16_example1.txt'
 # FILE_PATH = 'inputs/input_d16_example2.txt'
@@ -45,14 +41,16 @@ class State(Enum):
 @dataclass
 class NodeStatus:
     state: State
-    value: int
+    value: int = 10**10
 
 cache = {}
 def make_a_move(position, direction, map, visited, score):
 	key = (position, direction)
 	if key in cache:
-		if cache[key] != None and cache[key] < score:
-			return cache[key]
+		if cache[key].state == State.NO_PATH:
+			return None
+		if cache[key].state == State.REACHED_END and cache[key].value < score:
+			return cache[key].value
 
 	# cache.add((position, direction))
 	i, j = position
@@ -64,15 +62,15 @@ def make_a_move(position, direction, map, visited, score):
 	# print("found", map[i][j])
 	match map[i][j]:
 		case "E":
-			NodeStatus(State.REACHED_END, score)
+			cache[key] = NodeStatus(State.REACHED_END, score)
 			return score
 		case v if v != "#":
 			clockwise = ROTATE_CLOCKWISE[direction]
 			counterclockwise = ROTATE_COUNTERCLOCKWISE[direction]
 			possible_scores = [score for score in  [
-				make_a_move(next_tile(position, direction), direction, map, set(visited), score + 1),
-				make_a_move(next_tile(position, clockwise), clockwise, map, set(visited), score + 1000 + 1),
-				make_a_move(next_tile(position, counterclockwise), counterclockwise, map, set(visited), score + 1000 + 1),
+				make_a_move(next_tile(position, direction), direction, map, visited.copy(), score + 1),
+				make_a_move(next_tile(position, clockwise), clockwise, map, visited.copy(), score + 1000 + 1),
+				make_a_move(next_tile(position, counterclockwise), counterclockwise, map, visited.copy(), score + 1000 + 1),
 			] if score]
 			# print("Scores", possible_scores)
 			final_score = min(possible_scores) if possible_scores else None
@@ -94,13 +92,6 @@ def main():
 	for row in race_map:
 		print(row)
 	print(f"Result1: {get_score(race_map)}")
-
-	# widened_input_data = widen_input_data(input_data.map)
-	# for row in widened_input_data:
-	# 	print("".join(row))
-	# map_after_processing = process_robot_moves(widened_input_data, input_data.moves)
-	# gps_sum = sum(count_widened_GPS(map_after_processing))
-	# print(f"Result2: {gps_sum}")
 
 if __name__ == "__main__":
 	main()
