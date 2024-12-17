@@ -40,11 +40,24 @@ class Register:
 
 # def get_output(operand, combo, register):
 
+def get_combo_value(op_code, operand, register):
+	literals = set([0, 1, 2, 3])
+	match operand:
+		case 4:
+			operand = register.a
+		case 5:
+			operand = register.b
+		case 6:
+			operand = register.c
+		case value if value in literals:
+			operand = value
+		case 7:
+			raise Exception(f"Found 7 in combo {op_code},{operand}")
+
 def execute_program(program, A, B, C):
 	register = Register(A, B, C)
 	counter = 0
 	output = []
-	literals = set([0, 1, 2, 3])
 	# print(program)
 	while True:
 		if counter == len(program):
@@ -57,18 +70,8 @@ def execute_program(program, A, B, C):
 		print("counter", counter)
 		print(f"{op},{combo} A={register.a} B={register.b} C={register.c}")
 		
+		combo_ops = set([""])
 		combo_value = -1
-		match combo:
-			case 4:
-				combo_value = register.a
-			case 5:
-				combo_value = register.b
-			case 6:
-				combo_value = register.c
-			case value if value in literals:
-				combo_value = value
-			case 7:
-				raise Exception(f"Found 7 in {counter} {op},{combo}")
 		
 		def truncate(number):
 			return number % 8
