@@ -73,6 +73,7 @@ def execute_program(program, A, B, C):
 		def truncate(number):
 			return number % 8
 		
+		# recheck everything of which uses combo operands and which literal operands
 		match op:
 			case 0:
 				# adv - A division 2 in power of combo_value, send to A
