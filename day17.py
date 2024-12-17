@@ -200,9 +200,9 @@ def main():
 	# print(output, register)
 	# print(f"Result1: "+ ",".join([str(n) for n in output]))
 
-	for i in range(0, 10000):
+	for i in range(0, 50000):
 		register, output = execute_program(program.program, i, program.b, program.c)				
-		print(output, register)
+		print(i, output, register)
 		# print(f"Result1: "+ ",".join([str(n) for n in output]))
 
 	# test("2,6", c=9, eb=1)
