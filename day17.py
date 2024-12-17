@@ -42,15 +42,16 @@ class Register:
 
 def get_combo_value(op_code, operand, register):
 	literals = set([0, 1, 2, 3])
+	print(">>> operand", operand)
 	match operand:
 		case 4:
-			operand = register.a
+			return register.a
 		case 5:
-			operand = register.b
+			return register.b
 		case 6:
-			operand = register.c
+			return register.c
 		case value if value in literals:
-			operand = value
+			return value
 		case 7:
 			raise Exception(f"Found 7 in combo {op_code},{operand}")
 
@@ -65,50 +66,52 @@ def execute_program(program, A, B, C):
 			break
 		if counter + 1 >= len(program):
 			raise Exception("counter is too far")
-			break
-		op, combo = program[counter], program[counter + 1], 
-		print("counter", counter)
-		print(f"{op},{combo} A={register.a} B={register.b} C={register.c}")
+
+		op, operand = program[counter], program[counter + 1], 
 		
-		combo_ops = set([""])
-		combo_value = -1
+		combo_ops = set([0, 2, 5, 6, 7])
+
 		
 		def truncate(number):
 			return number % 8
+
+		operand_value = get_combo_value(op, operand, register) if op in combo_ops else operand
+		# print("operand")
+		print(f"   {counter}: {op},{operand} v={operand_value} A={register.a} B={register.b} C={register.c}")
 		
 		# recheck everything of which uses combo operands and which literal operands
 		match op:
 			case 0:
 				# adv - A division 2 in power of combo_value, send to A
-				register.a = truncate(register.a // (2^combo_value))
+				register.a = register.a // (2^operand_value)
 			case 1:
 				# bxl - B bitwise XOR combo send to B
-				register.b = register.b ^ combo_value
+				register.b = register.b ^ operand_value
 			case 2:
 				# bst - combo modulo 8, truncate, send to B
-				register.b = truncate(combo_value % 8)
+				register.b = truncate(operand_value % 8)
 			case 3:
 				# jnz - A == 0 do nothing, A != 0 JUMP TO A
 				if register.a != 0:
-					if register.a > len(program):
-						raise Exception(f"Tried to jump outside {counter} {register.a}")
 					print(f"Set counter {register.a}")
-					counter = register.a
+					counter = operand
+					print(f"Jumped {operand}")
 					continue
 			case 4:
 				# bxc - B bitwise XOR C, send to B
 				register.b = register.b ^ register.c
 			case 5:
 				# out - combo modulo 8, output
-				print(combo_value)
-				output.append(combo_value % 8)
+				print(operand_value)
+				output.append(operand_value % 8)
 			case 6:
 				# bdv - like adv, but send to B
-				register.b = register.a // (2^combo_value)
+				register.b = register.a // (2^operand_value)
 			case 7:
 				# cdv - like adv, but send to C
-				register.c = register.a // (2^combo_value)
+				register.c = register.a // (2^operand_value)
 		counter += 2
+		print(f">> {counter}: {op},{operand} v={operand_value} A={register.a} B={register.b} C={register.c}")
 	return (register, output)
      
 
@@ -121,13 +124,13 @@ def get_program(file_path) -> List[str]:
 def test(str_program, a=0, b=0, c=0, ea=None, eb=None, ec=None, eoutput=None):
 	program = [int(l) for l in str_program.split(",")]
 	register, output = execute_program(program, a, b, c)				
-	print(output, register)
+	# print(output, register)
 	if ea != None:
-		assert register.a == ea
+		assert register.a == ea, f"{register.a} != ea"
 	if eb != None:
-		assert register.b == eb
+		assert register.b == eb, f"{register.b} != {eb}"
 	if ec != None:
-		assert register.c == ec
+		assert register.c == ec, f"{register.c} != {ec}"
 	if eoutput != None:
 		assert output == eoutput, f"outputs didn't match actual: {output} expected: {eoutput}"
 
@@ -139,10 +142,13 @@ def main():
 
 	# test("2,6", c=9, eb=1)
 	# test("5,0,5,1,5,4", a = 10, eoutput=[0, 1, 2])
-	test("0,1,5,4,3,0", a = 2024, eoutput=[5,0,5,1,5,4], ea=0)
+	# test("1,7", b = 29, eb=26)
+	# test("4,0", b= 2024, c=43690, eb=44354)
+
+	test("0,1,5,4,3,0", a = 2024, eoutput=[4,2,5,6,7,7,7,7,3,1,0], ea=0)
 
 	# If register A contains 2024, the program 0,1,5,4,3,0 would output 4,2,5,6,7,7,7,7,3,1,0 and leave 0 in register A.
-
+	# pass
 
 
 
