@@ -5,8 +5,8 @@ from enum import Enum
 import time
 import heapq
 
-FILE_PATH = 'inputs/input_d18_example1.txt'
-# FILE_PATH = 'inputs/input_d18.txt'
+FILE_PATH_EXAMPLE = 'inputs/input_d18_example1.txt'
+FILE_PATH_MAIN = 'inputs/input_d18.txt'
 
 def get_input(file_path) -> List[Tuple[int, int]]:
 	script_dir = os.path.dirname(os.path.abspath(__file__))
@@ -38,50 +38,93 @@ def is_outside(pos, max_boundary):
 def get_all_direction(pos, max_boundary, corrupted):
 	i, j = pos
 	all_directions =  [(i + di, j + dj) for di, dj in ALL_DIRECTIONS]
-	return [direction for direction in all_directions if not is_outside(direction, max_boundary) and not direction in corrupted]
+	valid_directions = [direction for direction in all_directions if not is_outside(direction, max_boundary) and not direction in corrupted]
+	# print(f"{(i, j)} valid directions", valid_directions)
+
+	return valid_directions
+
 
 def shortest_path(start, max_boundary, corrupted):
 	adj = {}
+	# visited = {}
 	for y in range(max_boundary + 1):
 		for x in range(max_boundary + 1):
-			for direction in get_all_direction(start, max_boundary, corrupted):
-				print(direction)
-				adj[(x, y)] = direction
+			adj[(x, y)] = get_all_direction((x, y), max_boundary, corrupted)
+			# visited.add((x, y))
+	# print("adj", adj)
 
 	shortest = {}
 	minHeap = [[0, start]]
 	while minHeap:
-		print("minHeap", minHeap)
+		# print("minHeap", minHeap)
 		w1, n1 = heapq.heappop(minHeap)
 		if n1 in shortest:
 			continue
 		shortest[n1] = w1
+		
 
-		print("n1", n1, "w1", w1)
+		# print("n1", n1, "w1", w1)
+		# print(f"adj[{n1}]", adj[n1])
 		for n2 in adj[n1]:
 			if n2 not in shortest:
 				heapq.heappush(minHeap, [w1 + 1, n2])
 	
 	return shortest
 
+def solve1(byte_coords, bytes_to_fall, max_boundary):
+	# print(byte_coords)
+	fallen_bytes = set(fall(bytes_to_fall, byte_coords))
+	# print(fallen_bytes)
+	# for y in range(max_boundary + 1):
+	# 	line = ""
+	# 	for x in range(max_boundary + 1):
+	# 		if (x, y) in fallen_bytes:
+	# 			line += "#"
+	# 		else:
+	# 			line += "."
+	# 	print(line)
+
+	shortest_paths = shortest_path((0, 0), max_boundary, fallen_bytes)
+	final_coord = (max_boundary, max_boundary)
+	return shortest_paths.get(final_coord, None)
+	# print(shortest_path((0, 0), max_boundary, fallen_bytes)[max_boundary, max_boundary])
+
 
 def main():
-	boundaries = (0, 6)
-	byte_coords = get_input(FILE_PATH)
-	print(byte_coords)
-	fallen_bytes = set(fall(12, byte_coords))
-	print(fallen_bytes)
-	for y in range(boundaries[1] + 1):
-		line = ""
-		for x in range(boundaries[1] + 1):
-			if (x, y) in fallen_bytes:
-				line += "#"
-			else:
-				line += "."
-		print(line)
+	# print(solve1(get_input(FILE_PATH_EXAMPLE), bytes_to_fall=12, max_boundary=6))
+	# print(solve1(get_input(FILE_PATH_MAIN), bytes_to_fall=1024, max_boundary=70))
 
-	print(shortest_path((0, 0), 6, fallen_bytes))
+	# first_failed = None
+	# i = 0
+	# # i = 2912
+	# bytes = get_input(FILE_PATH_MAIN)
+	# while not first_failed:
+	# 	print(i)
+	# 	result = solve1(bytes, bytes_to_fall=i, max_boundary=70)
+	# 	# print("result", result)
+	# 	if result == None:
+	# 		first_failed = bytes[i]
+	# 	i += 1
+	# print(first_failed)
 
+
+	first_failed = None
+	i = 0
+	bytes = get_input(FILE_PATH_EXAMPLE)
+	print(bytes)
+	while not first_failed:
+		print(i)
+		result = solve1(bytes, bytes_to_fall=i+1, max_boundary=6)
+		# print("result", result)
+		if result == None:
+			first_failed = bytes[i]
+		i += 1
+	print(first_failed)
+
+	
+	# print(solve1(get_input(FILE_PATH_MAIN), bytes_to_fall=2912, max_boundary=70))
+	# just solved using binary search manually
+	# print(f"Result2 {get_input(FILE_PATH_MAIN)[2912]}")
 
 
 if __name__ == "__main__":
