@@ -94,32 +94,32 @@ def main():
 	# print(solve1(get_input(FILE_PATH_EXAMPLE), bytes_to_fall=12, max_boundary=6))
 	# print(solve1(get_input(FILE_PATH_MAIN), bytes_to_fall=1024, max_boundary=70))
 
-	# first_failed = None
-	# i = 0
-	# # i = 2912
-	# bytes = get_input(FILE_PATH_MAIN)
-	# while not first_failed:
-	# 	print(i)
-	# 	result = solve1(bytes, bytes_to_fall=i, max_boundary=70)
-	# 	# print("result", result)
-	# 	if result == None:
-	# 		first_failed = bytes[i]
-	# 	i += 1
-	# print(first_failed)
-
-
 	first_failed = None
-	i = 0
-	bytes = get_input(FILE_PATH_EXAMPLE)
-	print(bytes)
+	# i = 0
+	i = 2910
+	bytes = get_input(FILE_PATH_MAIN)
 	while not first_failed:
 		print(i)
-		result = solve1(bytes, bytes_to_fall=i+1, max_boundary=6)
+		result = solve1(bytes, bytes_to_fall=i+1, max_boundary=70)
 		# print("result", result)
 		if result == None:
 			first_failed = bytes[i]
 		i += 1
 	print(first_failed)
+
+
+	# first_failed = None
+	# i = 0
+	# bytes = get_input(FILE_PATH_EXAMPLE)
+	# print(bytes)
+	# while not first_failed:
+	# 	print(i)
+	# 	result = solve1(bytes, bytes_to_fall=i+1, max_boundary=6)
+	# 	# print("result", result)
+	# 	if result == None:
+	# 		first_failed = bytes[i]
+	# 	i += 1
+	# print(first_failed)
 
 	
 	# print(solve1(get_input(FILE_PATH_MAIN), bytes_to_fall=2912, max_boundary=70))
