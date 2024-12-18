@@ -99,7 +99,7 @@ def get_all_direction(pos):
 # visited = set()
 def walk_to_bests(pos, path, final_score, map):
 	i, j = pos
-	# visited.add(pos)
+	price[pos] == 0
 	if map[i][j] == "E":
 		return path
 
@@ -151,7 +151,15 @@ def get_best_paths_tile_count(start, end, map):
 	
 	return visited
 
-def get_adjacent(start, end, map):
+# def get_adjacent(start, end, map):
+# 	i, j = start
+
+# 	for
+
+
+# 	while True:
+		
+
 
 
 
@@ -211,9 +219,10 @@ def get_score(map):
 				line += s
 		print(line)
 
-	# print("price")
-	# for key, value in price.items():
-	# 	print(key, "->", value)
+	print("--- price")
+	for key, value in sorted(price.items()):
+		print(key, "->", value)
+	print("---")
 
 	return (final_price, tile_count)
 
