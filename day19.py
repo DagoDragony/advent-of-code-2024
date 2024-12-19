@@ -18,9 +18,9 @@ def get_input(file_path) -> List[Tuple[int, int]]:
 	script_dir = os.path.dirname(os.path.abspath(__file__))
 	full_path = os.path.join(script_dir, file_path)
 	with open(full_path, 'r') as file:
-		lines = [line.split(",") for line in file.read().splitlines()]
+		lines = file.read().splitlines()
 		return UnsenTowels(
-			lines[0],
+			lines[0].split(","),
 			lines[2:]
 		)
 
