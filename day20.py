@@ -4,6 +4,7 @@ from typing import Tuple, List, Iterable, TypeAlias, Dict
 from enum import Enum
 import time
 from heapq import heappush, heappop
+from itertools import groupby
 
 DAY = 20
 FILE_PATH_EXAMPLE = f"inputs/input_d{DAY}_example1.txt"
@@ -105,9 +106,11 @@ def main():
 	for walkable_wall in walkable_walls:
 		side1, side2 = walkable_wall
 		if side1 in shortest_paths and side2 in shortest_paths:
-			saved.add(abs(shortest_paths[side1] - shortest_paths[side2]) - 2)
+			saved.append(abs(shortest_paths[side1] - shortest_paths[side2] - 2))
 	print("max_saved", max(saved))
-	print(saved)
+	grouped = {key: list(group) for key, group in groupby(saved)}
+	print(grouped)
+	print(sorted(saved))
 	# print(shortest_paths)
 	# 9404 -- too high
 
