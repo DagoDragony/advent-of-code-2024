@@ -1,28 +1,15 @@
 import os
 from dataclasses import dataclass, field
-from typing import Tuple, List, Iterable, Dict
-from enum import Enum
-from collections import defaultdict
-import time
-import heapq
+from typing import Tuple, Iterable, Dict
 
 FILE_PATH_EXAMPLE = 'inputs/input_d19_example1.txt'
 FILE_PATH_MAIN = 'inputs/input_d19.txt'
-
 
 @dataclass
 class Trie:
 	nodes: Dict[str, Tuple['Trie', bool]] = field(default_factory=dict)
 
-	# def __str__(self):
-	# 	"\n".join([
-	# 		f"{self.nodes.keys()}"
-
-	# 		])
-
-
-
-	def add(self, design):
+	def add(self, design) -> None:
 		last_trie = self
 		for i,  strip in enumerate(design):
 			last_strip = (len(design) - 1) == i
@@ -53,9 +40,7 @@ def get_input(file_path) -> 'UnsenTowels':
 		)
 
 cache = {}
-def is_design_possible(design, trie):
-	# print("trie.nodes.keys", trie.nodes.keys())
-	# print("design", design)
+def get_possible_variations(design, trie) -> int:
 	if design in cache:
 		return cache[design]
 
@@ -76,14 +61,14 @@ def is_design_possible(design, trie):
 		else:
 			break
 	
+	possible_options = 0
 	while designs_to_check:
 		design_to_check = designs_to_check.pop()
-		if is_design_possible(design_to_check, trie):
-			cache[design_to_check] = True
-			return True
-		else:
-			cache[design_to_check] = False
-	return False
+		result = get_possible_variations(design_to_check, trie)
+		possible_options += result
+	cache[design] = possible_options
+
+	return possible_options
 
 
 def main():
@@ -96,14 +81,16 @@ def main():
 	print(trie.nodes.keys())
 
 	possible_designs = []
-	for i, design in enumerate(unsen_towels.designs):
-		result = is_design_possible(design, trie)
+	possible_count = 0
+	for _, design in enumerate(unsen_towels.designs):
+		result = get_possible_variations(design, trie)
 		possible_designs.append(result)
-		print(f"{i} {design} {result}")
+		if result > 0:
+			possible_count += 1
+		# print(f"{i} {design} {result}")
 
-	print(f"Result1: {sum(possible_designs)}")
-
-
+	print(f"Result1: {possible_count}")
+	print(f"Result2: {sum(possible_designs)}")
 
 
 if __name__ == "__main__":

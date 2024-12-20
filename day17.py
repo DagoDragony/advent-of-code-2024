@@ -95,6 +95,7 @@ def get_itself_program(program, B, C):
 					if register.a != 0:
 						# print(f"Set counter {register.a}")
 						counter = operand
+						print(f"{output} a={register.a} b={register.b} c={register.c}")
 						# print(f"Jumped {operand}")
 						continue
 				case 4:
@@ -135,6 +136,7 @@ def execute_program(program, A, B, C):
 			return number % 8
 
 		operand_value = get_combo_value(op, operand, register) if op in combo_ops else operand
+
 		# print("operand")
 		# print(f"   {counter}: {op},{operand} v={operand_value} A={register.a} B={register.b} C={register.c}")
 		
@@ -154,6 +156,7 @@ def execute_program(program, A, B, C):
 				if register.a != 0:
 					# print(f"Set counter {register.a}")
 					counter = operand
+					print(f">>> a={register.a} b={register.a%8}")
 					# print(f"Jumped {operand}")
 					continue
 			case 4:
@@ -200,7 +203,7 @@ def main():
 	# print(output, register)
 	# print(f"Result1: "+ ",".join([str(n) for n in output]))
 
-	for i in range(0, 50000):
+	for i in range(1, 30):
 		register, output = execute_program(program.program, i, program.b, program.c)				
 		print(i, output, register)
 		# print(f"Result1: "+ ",".join([str(n) for n in output]))
