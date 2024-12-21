@@ -65,7 +65,9 @@ def get_shortest_paths(start, map) -> Dict[Coord, int]:
     return shortest
 
 
-def get_number_keyboard_paths():
+
+
+def get_number_keyboard_paths() -> Dict[Tuple[str, str], str]:
 	keypad_mappings = {
 		"7": (0, 0),
 		"8": (0, 1),
@@ -79,6 +81,23 @@ def get_number_keyboard_paths():
 		"0": (3, 1),
 		"A": (3, 2),
 	}
+
+	empty_space = (3, 0)
+
+	def get_path(initial, delta) -> str:
+		di, dj = delta
+		current_coord = initial
+		while di != 0 and dj != 0:
+			i, j = current_coord
+			if di < 0:
+				new_coord = (i + 1, j)
+				if new_coord != empty_space:
+					current_coord = new_coord
+					di += 1
+
+			
+
+
 	return {(f, t): (ti - fi, tj - fj)  for f, (fi, fj) in keypad_mappings.items() for t, (ti, tj) in keypad_mappings.items() if f != t}
 
 NUMBER_KEYBOARD_PATHS = get_number_keyboard_paths()
@@ -117,23 +136,31 @@ def translate_number_keypad(symbols):
 	return result
 
 
-def translate_arrow_keypad(symbols):
+def translate_arrow_keypad(symbols, debug = False):
+	# print(symbols)
 	result = ""
 	# ????????
 	previous_symbol = "A"
 	for s in symbols:
+		if debug:
+			print("Symbol", s)
+			print("--------------------")
 		if previous_symbol == s:
-			result += r
+			result += "A"
+			if debug:
+				print("Same as previous")
 		else:
 			mi, mj = ARROW_KEYBOARD_PATHS[(previous_symbol, s)]
 			si, sj = direction_symbols(mi, mj)
 			r = sj*abs(mj) + si*abs(mi) +"A"
-			# print(f"{previous_symbol} -> {s}:", mi, mj)
-			# print("directions", si, sj)
-			# print(r)
+			if debug:
+				print(f"{previous_symbol} -> {s}:", mi, mj)
+				print("directions", si, sj)
+				print(r)
+
 			result += r
-			# print(r)
 			previous_symbol = s
+
 	return result
 
 
@@ -142,11 +169,11 @@ def translate_arrow_keypad(symbols):
 def main():
 	codes = get_input(FILE_PATH_EXAMPLE)
 	
-	for row in codes:
+	for row in [codes[0]]:
 		print(row)
 		lvl1 = translate_number_keypad(row)
 		lvl2 = translate_arrow_keypad(lvl1)
-		lvl3 = translate_arrow_keypad(lvl2)
+		lvl3 = translate_arrow_keypad(lvl2, debug = True)
 		print("lvl1", lvl1, len(lvl1))
 		print("lvl2", lvl2, len(lvl2))
 		print("lvl3", lvl3, len(lvl3))
