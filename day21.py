@@ -64,7 +64,12 @@ def get_shortest_paths(start, map) -> Dict[Coord, int]:
                 heappush(heap, (current_weight + 1,  tile))
     return shortest
 
-
+DIRECTION_MAP = {
+	(0, 1): ">",
+	(0, -1): "<",
+	(-1, 0): "^",
+	(1, 0): "v"
+}
 
 
 def get_number_keyboard_paths() -> Dict[Tuple[str, str], str]:
@@ -87,15 +92,31 @@ def get_number_keyboard_paths() -> Dict[Tuple[str, str], str]:
 	def get_path(initial, delta) -> str:
 		di, dj = delta
 		current_coord = initial
+
+		def get_singular_delta_i(di) -> int:
+			return (di * -1)/abs(di)
+
+		def get_singular_delta_j(dj) -> int:
+			return (dj * -1)/abs(dj)
+
+		directions = ""
 		while di != 0 and dj != 0:
 			i, j = current_coord
+
 			if di < 0:
-				new_coord = (i + 1, j)
+				sdi = get_singular_delta_i(di)
+				new_coord = (i + sdi, j)
+
 				if new_coord != empty_space:
 					current_coord = new_coord
-					di += 1
-
+					di += sdi
+					directions += DIRECTION_MAP((sdi, 0))
+				else:
+					sdj = get_singular_delta_i(dj)
+					new_coord = (i, j + sdj)
+					dj += sdj
 			
+			current_coord = new_coord
 
 
 	return {(f, t): (ti - fi, tj - fj)  for f, (fi, fj) in keypad_mappings.items() for t, (ti, tj) in keypad_mappings.items() if f != t}
