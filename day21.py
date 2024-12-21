@@ -2,9 +2,10 @@ import os
 from dataclasses import dataclass
 from typing import Tuple, List, Iterable, TypeAlias, Dict
 from enum import Enum
+from collections import defaultdict
 import time
 from heapq import heappush, heappop
-from itertools import groupby
+from itertools import groupby, permutations
 
 DAY = 21
 FILE_PATH_EXAMPLE = f"inputs/input_d{DAY}_example1.txt"
@@ -114,14 +115,25 @@ def get_path(initial, final) -> str:
 	directions = ""
 	# print("di", di, "dj", dj)
 	while di != 0 or dj != 0:
+		changed = False
+
 		move_i = get_delta_i_step(di, current_coord)
-		if move_i != None:
+		if not changed and move_i != None:
 			new_coord, new_di, symbol = move_i
 			di = new_di
+			changed = True
+
 		move_j = get_delta_j_step(dj, current_coord)
-		if move_j != None:
+		if not changed and move_j != None:
 			new_coord, new_dj, symbol = move_j
 			dj = new_dj
+			changed = True
+
+
+
+		if not changed:
+			raise Exception("Not changed!")
+
 		directions += symbol
 		current_coord = new_coord
 	# print("Directions", directions)
@@ -145,9 +157,13 @@ def get_number_keyboard_paths() -> Dict[Tuple[str, str], str]:
 
 
 
-	return {(f, t): get_path((fi, fj), (ti, tj))  for f, (fi, fj) in keypad_mappings.items() for t, (ti, tj) in keypad_mappings.items() if f != t}
+	return {(f, t): get_all_permutations(get_path((fi, fj), (ti, tj)))  for f, (fi, fj) in keypad_mappings.items() for t, (ti, tj) in keypad_mappings.items() if f != t}
 
 NUMBER_KEYBOARD_PATHS = get_number_keyboard_paths()
+
+def get_all_permutations(path):
+	all_permutations = [''.join(p) for p in permutations(path)]
+	return all_permutations
 
 def get_arrow_keyboard_paths():
 	keypad_mappings = {
@@ -157,7 +173,8 @@ def get_arrow_keyboard_paths():
 		"v": (1, 1),
 		">": (1, 2),
 	}
-	return {(f, t): get_path((fi, fj), (ti, tj))  for f, (fi, fj) in keypad_mappings.items() for t, (ti, tj) in keypad_mappings.items() if f != t}
+
+	return {(f, t): get_all_permutations(get_path((fi, fj), (ti, tj)))  for f, (fi, fj) in keypad_mappings.items() for t, (ti, tj) in keypad_mappings.items() if f != t}
 
 ARROW_KEYBOARD_PATHS = get_arrow_keyboard_paths()
 
@@ -166,18 +183,19 @@ def direction_symbols(di, dj):
 	sj = "<" if dj < 0 else ">"
 	return (si, sj)
 
+
 def translate_number_keypad(symbols, debug = False):
-	result = ""
+	result = defaultdict(lambda: "")
 	# ????????
 	previous_symbol = "A"
 	for s in symbols:
-		path = NUMBER_KEYBOARD_PATHS[(previous_symbol, s)]
-		r = path + "A"
-		if debug:
-			print(f"{previous_symbol} -> {s}:", r)
-		result += r
-		# print(r)
-		previous_symbol = s
+		for i, path in enumerate(NUMBER_KEYBOARD_PATHS[(previous_symbol, s)]):
+			r = path + "A"
+			if debug:
+				print(f"{previous_symbol} -> {s}:", r)
+			r[i] += r
+			# print(r)
+			previous_symbol = s
 	return result
 
 
@@ -208,10 +226,19 @@ def translate_arrow_keypad(symbols, debug = False):
 
 def main():
 	codes = get_input(FILE_PATH_EXAMPLE)
-	
+
+	row = codes[0]
+
+	number_keyboard_paths = get_number_keyboard_paths()
+	arrow_keyboard_paths = get_arrow_keyboard_paths()
+
+	for (fr, to), path in number_keyboard_paths.items():
+
+		
+
 	for row in codes:
 		print(row)
-		lvl1 = translate_number_keypad(row)
+		lvl1_paths = translate_number_keypad(row)
 		# print(NUMBER_KEYBOARD_PATHS)
 		lvl2 = translate_arrow_keypad(lvl1)
 		lvl3 = translate_arrow_keypad(lvl2)
