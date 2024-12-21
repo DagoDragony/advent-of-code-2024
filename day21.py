@@ -185,38 +185,74 @@ def direction_symbols(di, dj):
 
 
 def translate_number_keypad(symbols, debug = False):
-	result = defaultdict(lambda: "")
-	# previous_symbol = defaultdict(lambda: "A")
+	# print(symbols)
+	# result = defaultdict(lambda: "")
+	# # previous_symbol = defaultdict(lambda: "A")
+	# # ????????
+	# previous_symbol = "A"
+	# for s in symbols:
+	# 	for i, path in enumerate(NUMBER_KEYBOARD_PATHS[(previous_symbol, s)]):
+	# 		r = path + "A"
+	# 		# if debug:
+	# 		# 	print(f"{previous_symbol} -> {s}:", r)
+	# 		result[i] += r
+	# 		# print(r)
+	# 	previous_symbol = s
+	# return set(result.values())
+
+	if debug:
+		print(symbols)
+	results = [""]
 	# ????????
 	previous_symbol = "A"
 	for s in symbols:
-		for i, path in enumerate(NUMBER_KEYBOARD_PATHS[(previous_symbol, s)]):
-			r = path + "A"
-			# if debug:
-			# 	print(f"{previous_symbol} -> {s}:", r)
-			result[i] += r
-			# print(r)
+		if previous_symbol == s:
+			results = [r + "A" for r in results]
+			# results.append(["A"])
+			# for i in result.keys():
+			# 	result[i] += "A"
+			continue 
+		
+		paths = [path + "A" for path in NUMBER_KEYBOARD_PATHS[(previous_symbol, s)]]
+		results = [r + path for path in paths for r in results]
+  
+		# for i, path in enumerate(ARROW_KEYBOARD_PATHS[(previous_symbol, s)]):
+		# 	r = path + "A"
+		# 	if debug:
+		# 		print(f"{previous_symbol} -> {s}:", r)
+
+		# 	result.append(r)
+		# 	# print(r)
+
 		previous_symbol = s
-	return set(result.values())
+	
+	return results
 
 
 def translate_arrow_keypad(symbols, debug = False):
 	if debug:
 		print(symbols)
-	result = defaultdict(lambda: "")
+	results = [] #defaultdict(lambda: "")
 	# ????????
 	previous_symbol = "A"
 	for s in symbols:
 		if previous_symbol == s:
-			for i in result.keys():
-				result[i] += "A"
+			results = [r + "A" for r in results]
+			# results.append(["A"])
+			# for i in result.keys():
+			# 	result[i] += "A"
 			continue 
-		for i, path in enumerate(ARROW_KEYBOARD_PATHS[(previous_symbol, s)]):
-			r = path + "A"
-			if debug:
-				print(f"{previous_symbol} -> {s}:", r)
-			result[i] += r
-			# print(r)
+		
+		paths = [path + "A" for path in ARROW_KEYBOARD_PATHS[(previous_symbol, s)]]
+		results = [r + path for path in paths for r in results]
+  
+		# for i, path in enumerate(ARROW_KEYBOARD_PATHS[(previous_symbol, s)]):
+		# 	r = path + "A"
+		# 	if debug:
+		# 		print(f"{previous_symbol} -> {s}:", r)
+
+		# 	result.append(r)
+		# 	# print(r)
 
 		previous_symbol = s
 
@@ -236,23 +272,28 @@ def translate_arrow_keypad(symbols, debug = False):
 
 		# 	result += r
 		# 	previous_symbol = s
-
-	return set(result.values())
+	# print(results)
+	return results
 
 
 def main():
 	codes = get_input(FILE_PATH_EXAMPLE)
 
-	row = codes[0]
-	lvl1_paths = translate_number_keypad(row)
-	# print(lvl1_paths)
-	# print(">> min lvl1", min(lvl1_paths, key=len))
-	lvl2_paths = [path2 for path in lvl1_paths for path2 in list(translate_arrow_keypad(path, debug=True))[:1]]
-	print(lvl2_paths)
-	print(">> min lvl2", min(lvl2_paths, key=len))
-	# lvl3_paths = [path3 for path in lvl2_paths for path3 in translate_arrow_keypad(path)]
-	# print(lvl3_paths)
-	# print(">> min lvl3", min(lvl3_paths, key=len))
+	for row in codes:
+		print(row)
+		lvl1_paths = translate_number_keypad(row)
+		# print(lvl1_paths)
+		# print(">> min lvl1", min(lvl1_paths, key=len))
+		lvl2_paths = [path2 for path in lvl1_paths for path2 in translate_arrow_keypad(path)]
+		print("finished lvl2 with ", len(lvl2_paths))
+		# print(lvl2_paths)
+		# lvl2_min = min(lvl2_paths, key=len)
+		# print(">> min lvl2", lvl2_min, "len", len(lvl2_min))
+		lvl3_paths = [path3 for path in lvl2_paths for path3 in translate_arrow_keypad(path)]
+		lvl3_min = min(lvl3_paths, key=len)
+		print(">> min lvl3", lvl3_min, "len", len(lvl3_min))
+		# print(lvl3_paths)
+		# print(">> min lvl3", min(lvl3_paths, key=len))
 	
 
 
