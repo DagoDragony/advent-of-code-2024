@@ -1,5 +1,5 @@
 import os
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Tuple, List, Iterable, TypeAlias, Dict
 from enum import Enum
 from collections import defaultdict
@@ -22,6 +22,12 @@ ALL_DIRECTIONS = [
 	UP,
 	DOWN,
 ]
+
+
+@dataclass
+class Trie:
+	nodes: Dict[str, Tuple['Trie', bool]] = field(default_factory=dict)
+
 
 Coord: TypeAlias = tuple[int, int]
 
@@ -185,115 +191,116 @@ def direction_symbols(di, dj):
 
 
 def translate_number_keypad(symbols, debug = False):
-	# print(symbols)
-	# result = defaultdict(lambda: "")
-	# # previous_symbol = defaultdict(lambda: "A")
-	# # ????????
-	# previous_symbol = "A"
-	# for s in symbols:
-	# 	for i, path in enumerate(NUMBER_KEYBOARD_PATHS[(previous_symbol, s)]):
-	# 		r = path + "A"
-	# 		# if debug:
-	# 		# 	print(f"{previous_symbol} -> {s}:", r)
-	# 		result[i] += r
-	# 		# print(r)
-	# 	previous_symbol = s
-	# return set(result.values())
-
 	if debug:
 		print(symbols)
 	results = [""]
-	# ????????
 	previous_symbol = "A"
 	for s in symbols:
 		if previous_symbol == s:
 			results = [r + "A" for r in results]
-			# results.append(["A"])
-			# for i in result.keys():
-			# 	result[i] += "A"
 			continue 
 		
 		paths = [path + "A" for path in NUMBER_KEYBOARD_PATHS[(previous_symbol, s)]]
 		results = [r + path for path in paths for r in results]
-  
-		# for i, path in enumerate(ARROW_KEYBOARD_PATHS[(previous_symbol, s)]):
-		# 	r = path + "A"
-		# 	if debug:
-		# 		print(f"{previous_symbol} -> {s}:", r)
-
-		# 	result.append(r)
-		# 	# print(r)
 
 		previous_symbol = s
 	
+	return set(results)
+
+
+def translate_arrow_keypad_last(symbols, debug = False):
+	if debug:
+		print(symbols)
+	results = []
+	previous_symbol = "A"
+	for s in symbols:
+		if previous_symbol == s:
+			results.append(["A"])
+			continue 
+		
+		paths = [path + "A" for path in ARROW_KEYBOARD_PATHS[(previous_symbol, s)]]
+		results.append(paths)
+
+		previous_symbol = s
+
 	return results
 
 
 def translate_arrow_keypad(symbols, debug = False):
 	if debug:
 		print(symbols)
-	results = [] #defaultdict(lambda: "")
-	# ????????
+
+	results = []
 	previous_symbol = "A"
 	for s in symbols:
 		if previous_symbol == s:
-			results = [r + "A" for r in results]
-			# results.append(["A"])
-			# for i in result.keys():
-			# 	result[i] += "A"
+			results.append(["A"])
 			continue 
 		
 		paths = [path + "A" for path in ARROW_KEYBOARD_PATHS[(previous_symbol, s)]]
-		results = [r + path for path in paths for r in results]
-  
-		# for i, path in enumerate(ARROW_KEYBOARD_PATHS[(previous_symbol, s)]):
-		# 	r = path + "A"
-		# 	if debug:
-		# 		print(f"{previous_symbol} -> {s}:", r)
+		results.append(list(set(paths)))
 
-		# 	result.append(r)
-		# 	# print(r)
 
 		previous_symbol = s
 
-
-		# # if debug:
-		# # 	print("Symbol", s)
-		# # 	print("--------------------")
-		# if previous_symbol == s:
-		# 	result += "A"
-		# 	# if debug:
-		# 	# 	print("Same as previous")
-		# else:
-		# 	path = ARROW_KEYBOARD_PATHS[(previous_symbol, s)]
-		# 	r = path+ "A"
-		# 	if debug:
-		# 		print(f"{previous_symbol} -> {s}:", r)
-
-		# 	result += r
-		# 	previous_symbol = s
-	# print(results)
 	return results
+
+
+def collect_partitions(partitions):
+	results = [""]
+
+	for partition in partitions:
+	# return [r + partition for partition in partitions for r in results]
+		results = [ r + part for part in partition for r in results]
+	return results
+
+
+def get_shortest_combination(partitions):
+	minimum = 0
+	results = [""]
+
+	for partition in partitions:
+	# return [r + partition for partition in partitions for r in results]
+		results = [ r + part for part in partition for r in results]
+	return results
+
 
 
 def main():
 	codes = get_input(FILE_PATH_EXAMPLE)
 
-	for row in codes:
+	# collected_partitions = collect_partitions([["A"], ["1", "2"], ["X", "Y"]])
+	# print(collected_partitions)
+
+	# print(ARROW_KEYBOARD_PATHS)
+
+	for row in codes[:1]:
 		print(row)
-		lvl1_paths = translate_number_keypad(row)
+		lvl1_paths = list(translate_number_keypad(row))
+		print(lvl1_paths)
 		# print(lvl1_paths)
 		# print(">> min lvl1", min(lvl1_paths, key=len))
-		lvl2_paths = [path2 for path in lvl1_paths for path2 in translate_arrow_keypad(path)]
+		lvl2_partitions_groups = [ translate_arrow_keypad(path) for path in lvl1_paths]
+		# print(lvl2_partitions_groups)
+		lvl2_paths = collect_partitions(lvl2_partitions_groups[0])
+		for row in lvl2_paths:
+			print(row)
+		# print("lvl2_paths", lvl2_paths)
 		print("finished lvl2 with ", len(lvl2_paths))
-		# print(lvl2_paths)
-		# lvl2_min = min(lvl2_paths, key=len)
-		# print(">> min lvl2", lvl2_min, "len", len(lvl2_min))
-		lvl3_paths = [path3 for path in lvl2_paths for path3 in translate_arrow_keypad(path)]
-		lvl3_min = min(lvl3_paths, key=len)
-		print(">> min lvl3", lvl3_min, "len", len(lvl3_min))
-		# print(lvl3_paths)
-		# print(">> min lvl3", min(lvl3_paths, key=len))
+
+	# 	print(lvl2_paths)
+	# 	# # lvl2_min = min(lvl2_paths, key=len)
+	# 	# # print(">> min lvl2", lvl2_min, "len", len(lvl2_min))
+		lvl3_partitions_groups = [ translate_arrow_keypad(path) for path in lvl2_paths]
+		min_length = 9999999999999999999999999
+
+		
+		print("finished")
+		# lvl3_paths = [path3 for path in lvl2_paths for path3 in translate_arrow_keypad(path)]
+		# lvl3_min = min(lvl3_paths, key=len)
+	# 	# print(">> min lvl3", lvl3_min, "len", len(lvl3_min))
+	# 	# # print(lvl3_paths)
+	# 	# # print(">> min lvl3", min(lvl3_paths, key=len))
 	
 
 
@@ -326,13 +333,6 @@ def main():
 	# 	# 	# print(r)
 	# 	# 	previous_symbol = s
 	# 	# print("lvl1:", result)
-		
-
-
-			
-
-
-
 
 
 if __name__ == "__main__":
