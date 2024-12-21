@@ -71,6 +71,62 @@ DIRECTION_MAP = {
 	(1, 0): "v"
 }
 
+empty_space = (3, 0)
+
+def get_path(initial, final) -> str:
+	(ii, ij), (fi, fj) = initial, final
+	di, dj = (ii - fi, ij - fj)
+	current_coord = initial
+	# print("-"*10)
+	# print("from to", initial, final)
+	# print("-"*10)
+
+	def get_delta_i_step(di, pos) ->  Tuple[Tuple[int, int], int, str] | None:
+		if di == 0:
+			return None
+		i, j = pos
+		step =int((di * -1)/abs(di))
+		new_coord = (i + step, j)
+		# print("new_coord", new_coord)
+		if new_coord == empty_space:
+			return None
+		else:
+			move_symbol = DIRECTION_MAP[(step, 0)]
+			# print("symbol", move_symbol, "new di", di + step)
+			return (new_coord, di + step, move_symbol)
+
+
+	def get_delta_j_step(dj, pos) -> Tuple[Tuple[int, int], int, str] | None:
+		if dj == 0:
+			return None
+		i, j = pos
+		step = int((dj * -1)/abs(dj))
+		new_coord = (i, j + step)
+		# print("new_coord", new_coord)
+		if new_coord == empty_space:
+			return None
+		else:
+			move_symbol = DIRECTION_MAP[(0, step)]
+			# print("symbol", move_symbol, "new dj", dj + step)
+			return (new_coord, dj + step, move_symbol)
+
+
+	directions = ""
+	# print("di", di, "dj", dj)
+	while di != 0 or dj != 0:
+		move_i = get_delta_i_step(di, current_coord)
+		if move_i != None:
+			new_coord, new_di, symbol = move_i
+			di = new_di
+		move_j = get_delta_j_step(dj, current_coord)
+		if move_j != None:
+			new_coord, new_dj, symbol = move_j
+			dj = new_dj
+		directions += symbol
+		current_coord = new_coord
+	# print("Directions", directions)
+	return directions
+
 
 def get_number_keyboard_paths() -> Dict[Tuple[str, str], str]:
 	keypad_mappings = {
@@ -87,39 +143,9 @@ def get_number_keyboard_paths() -> Dict[Tuple[str, str], str]:
 		"A": (3, 2),
 	}
 
-	empty_space = (3, 0)
-
-	def get_path(initial, delta) -> str:
-		di, dj = delta
-		current_coord = initial
-
-		def get_singular_delta_i(di) -> int:
-			return (di * -1)/abs(di)
-
-		def get_singular_delta_j(dj) -> int:
-			return (dj * -1)/abs(dj)
-
-		directions = ""
-		while di != 0 and dj != 0:
-			i, j = current_coord
-
-			if di < 0:
-				sdi = get_singular_delta_i(di)
-				new_coord = (i + sdi, j)
-
-				if new_coord != empty_space:
-					current_coord = new_coord
-					di += sdi
-					directions += DIRECTION_MAP((sdi, 0))
-				else:
-					sdj = get_singular_delta_i(dj)
-					new_coord = (i, j + sdj)
-					dj += sdj
-			
-			current_coord = new_coord
 
 
-	return {(f, t): (ti - fi, tj - fj)  for f, (fi, fj) in keypad_mappings.items() for t, (ti, tj) in keypad_mappings.items() if f != t}
+	return {(f, t): get_path((fi, fj), (ti, tj))  for f, (fi, fj) in keypad_mappings.items() for t, (ti, tj) in keypad_mappings.items() if f != t}
 
 NUMBER_KEYBOARD_PATHS = get_number_keyboard_paths()
 
@@ -131,7 +157,7 @@ def get_arrow_keyboard_paths():
 		"v": (1, 1),
 		">": (1, 2),
 	}
-	return {(f, t): (ti - fi, tj - fj)  for f, (fi, fj) in keypad_mappings.items() for t, (ti, tj) in keypad_mappings.items() if f != t}
+	return {(f, t): get_path((fi, fj), (ti, tj))  for f, (fi, fj) in keypad_mappings.items() for t, (ti, tj) in keypad_mappings.items() if f != t}
 
 ARROW_KEYBOARD_PATHS = get_arrow_keyboard_paths()
 
@@ -140,17 +166,15 @@ def direction_symbols(di, dj):
 	sj = "<" if dj < 0 else ">"
 	return (si, sj)
 
-def translate_number_keypad(symbols):
+def translate_number_keypad(symbols, debug = False):
 	result = ""
 	# ????????
 	previous_symbol = "A"
 	for s in symbols:
-		mi, mj = NUMBER_KEYBOARD_PATHS[(previous_symbol, s)]
-		si, sj = direction_symbols(mi, mj)
-		r = sj*abs(mj) + si*abs(mi) +"A"
-		# print(f"{previous_symbol} -> {s}:", mi, mj)
-		# print("directions", si, sj)
-		# print(r)
+		path = NUMBER_KEYBOARD_PATHS[(previous_symbol, s)]
+		r = path + "A"
+		if debug:
+			print(f"{previous_symbol} -> {s}:", r)
 		result += r
 		# print(r)
 		previous_symbol = s
@@ -171,13 +195,10 @@ def translate_arrow_keypad(symbols, debug = False):
 			if debug:
 				print("Same as previous")
 		else:
-			mi, mj = ARROW_KEYBOARD_PATHS[(previous_symbol, s)]
-			si, sj = direction_symbols(mi, mj)
-			r = sj*abs(mj) + si*abs(mi) +"A"
+			path = ARROW_KEYBOARD_PATHS[(previous_symbol, s)]
+			r = path+"A"
 			if debug:
-				print(f"{previous_symbol} -> {s}:", mi, mj)
-				print("directions", si, sj)
-				print(r)
+				print(f"{previous_symbol} -> {s}:", r)
 
 			result += r
 			previous_symbol = s
@@ -185,16 +206,15 @@ def translate_arrow_keypad(symbols, debug = False):
 	return result
 
 
-
-
 def main():
 	codes = get_input(FILE_PATH_EXAMPLE)
 	
-	for row in [codes[0]]:
+	for row in codes:
 		print(row)
 		lvl1 = translate_number_keypad(row)
+		# print(NUMBER_KEYBOARD_PATHS)
 		lvl2 = translate_arrow_keypad(lvl1)
-		lvl3 = translate_arrow_keypad(lvl2, debug = True)
+		lvl3 = translate_arrow_keypad(lvl2)
 		print("lvl1", lvl1, len(lvl1))
 		print("lvl2", lvl2, len(lvl2))
 		print("lvl3", lvl3, len(lvl3))
