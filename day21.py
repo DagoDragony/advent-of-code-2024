@@ -39,41 +39,12 @@ def get_input(file_path) -> List[str]:
     with open(full_path, 'r') as file:
         return file.read().splitlines()
 
-
-# def is_outside(pos, boundaries):
-# 	i, j = pos
-# 	len_i, len_j = boundaries
-# 	return i < 0 or j < 0 or i >= len_i or j >= len_j
-
-
-# def get_shortest_paths(start, map) -> Dict[Coord, int]:
-#     """
-#     Dijkstra again
-#     """
-#     shortest = {}
-
-#     heap = [(0, start)]
-#     while heap:
-#         current_weight, coord = heappop(heap)
-#         if coord in shortest:
-#             pass
-#         shortest[coord] = current_weight
-        
-#         all_adj = get_all_adjacent(coord, map)
-#         for  tile in all_adj:
-#             i, j = tile
-#             if not tile in shortest and not map[i][j] == "#":
-#                 heappush(heap, (current_weight + 1,  tile))
-#     return shortest
-
-
 DIRECTION_MAP = {
 	(0, 1): ">",
 	(0, -1): "<",
 	(-1, 0): "^",
 	(1, 0): "v"
 }
-
 
 
 def move(current, final, delta, path, empty_space) -> List[str]:
@@ -214,47 +185,51 @@ def get_shortest_combination(partitions):
 	return min(results)
 
 
+def get_partitions_group(initial_paths, indirection_count):
+	paths = initial_paths
+	for i in range(indirection_count):
+		partitions_groups = [translate_arrow_keypad(path) for path in paths]
+		if not i + 1 == indirection_count:
+			paths = [path for partitions_group in partitions_groups for path in collect_partitions(partitions_group)] 
+
+	return partitions_groups
+
+
 def main():
 	codes = get_input(FILE_PATH_MAIN)
 
-	# collected_partitions = collect_partitions([["A"], ["1", "2"], ["X", "Y"]])
-	# print(collected_partitions)
-	# for key, paths in NUMBER_KEYBOARD_PATHS.items():
-	# 	print(key, paths)
+	shortest_paths = []
+	for row in codes:
+		lvl1_paths = list(translate_number_keypad(row))
 
-	# for key, paths in ARROW_KEYBOARD_PATHS.items():
-	# 	print(key, paths)
+		lvl2_partitions_groups = [translate_arrow_keypad(path) for path in lvl1_paths]
+		lvl2_paths = [path for lvl2_partitions_group in lvl2_partitions_groups for path in collect_partitions(lvl2_partitions_group)] 
+		lvl3_partitions_groups = [ translate_arrow_keypad(path) for path in lvl2_paths]
+
+		min_path_len = min([get_shortest_combination(partitions_group) for partitions_group in lvl3_partitions_groups])
+		shortest_paths.append((row, min_path_len))
+
+
+	results = []
+	for cmd, min_path in shortest_paths:
+		cmd_number = int(cmd[:-1])
+		results.append(cmd_number * min_path)
+	print("Result1: ", sum(results))
+
 
 	shortest_paths = []
 	for row in codes:
-		# print(row)
 		lvl1_paths = list(translate_number_keypad(row))
-		# print(lvl1_paths)
-		# print("finished lvl1 with ", len(lvl1_paths))
-		# print(lvl1_paths)
-		# print(">> min lvl1", min(lvl1_paths, key=len))
-		lvl2_partitions_groups = [translate_arrow_keypad(path) for path in lvl1_paths]
-		# print("lvl2_partitions_groups_count", len(lvl2_partitions_groups))
-		# print(lvl2_partitions_groups)
+		final_partitions_groups = get_partitions_group(lvl1_paths, 2)
 
-		lvl2_paths = [path for lvl2_partitions_group in lvl2_partitions_groups for path in collect_partitions(lvl2_partitions_group)] 
-		# for row in lvl2_paths:
-		# 	print(row)
-		# print("lvl2_paths", lvl2_paths)
-		# print("finished lvl2 with ", len(lvl2_paths))
+		# lvl2_partitions_groups = [ translate_arrow_keypad(path) for path in lvl1_paths]
+		# lvl2_paths = [path for lvl2_partitions_group in lvl2_partitions_groups for path in collect_partitions(lvl2_partitions_group)] 
+		# lvl3_partitions_groups = [ translate_arrow_keypad(path) for path in lvl2_paths ]
+		# lvl3_paths = [path for lvl3_partitions_group in lvl3_partitions_groups for path in collect_partitions(lvl3_partitions_group)] 
 
-		# print(lvl2_paths)
-		# # lvl2_min = min(lvl2_paths, key=len)
-		# # print(">> min lvl2", lvl2_min, "len", len(lvl2_min))
-		lvl3_partitions_groups = [ translate_arrow_keypad(path) for path in lvl2_paths]
-		min_path_len = min([get_shortest_combination(partitions_group) for partitions_group in lvl3_partitions_groups])
-		# print("Result", min_path_len)
+		min_path_len = min([get_shortest_combination(partitions_group) for partitions_group in final_partitions_groups])
 		shortest_paths.append((row, min_path_len))
-		# lvl3_paths = [path3 for path in lvl2_paths for path3 in translate_arrow_keypad(path)]
-		# lvl3_min = min(lvl3_paths, key=len)
-	# # 	# print(">> min lvl3", lvl3_min, "len", len(lvl3_min))
-	# # 	# # print(lvl3_paths)
-	# # 	# # print(">> min lvl3", min(lvl3_paths, key=len))
+
 
 	results = []
 	for cmd, min_path in shortest_paths:
