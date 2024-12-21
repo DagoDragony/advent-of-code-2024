@@ -46,32 +46,25 @@ def get_input(file_path) -> List[str]:
 # 	return i < 0 or j < 0 or i >= len_i or j >= len_j
 
 
-def get_all_adjacent(pos, map):
-	i, j = pos
-	adjacent_tiles =  [(i + di, j + dj) for di, dj in ALL_DIRECTIONS]
-	valid_directions = [tile for tile in adjacent_tiles if not is_outside(tile, (len(map), len(map[0])))]
-	return valid_directions
+# def get_shortest_paths(start, map) -> Dict[Coord, int]:
+#     """
+#     Dijkstra again
+#     """
+#     shortest = {}
 
-
-def get_shortest_paths(start, map) -> Dict[Coord, int]:
-    """
-    Dijkstra again
-    """
-    shortest = {}
-
-    heap = [(0, start)]
-    while heap:
-        current_weight, coord = heappop(heap)
-        if coord in shortest:
-            pass
-        shortest[coord] = current_weight
+#     heap = [(0, start)]
+#     while heap:
+#         current_weight, coord = heappop(heap)
+#         if coord in shortest:
+#             pass
+#         shortest[coord] = current_weight
         
-        all_adj = get_all_adjacent(coord, map)
-        for  tile in all_adj:
-            i, j = tile
-            if not tile in shortest and not map[i][j] == "#":
-                heappush(heap, (current_weight + 1,  tile))
-    return shortest
+#         all_adj = get_all_adjacent(coord, map)
+#         for  tile in all_adj:
+#             i, j = tile
+#             if not tile in shortest and not map[i][j] == "#":
+#                 heappush(heap, (current_weight + 1,  tile))
+#     return shortest
 
 
 DIRECTION_MAP = {
@@ -81,72 +74,57 @@ DIRECTION_MAP = {
 	(1, 0): "v"
 }
 
-empty_space = (3, 0)
 
-def get_path(initial, final) -> str:
+
+def move(current, final, delta, path, empty_space) -> List[str]:
+	if current == empty_space:
+		return []
+	
+	if current == final:
+		# print("current == final")
+		if delta != (0, 0):
+			raise Exception("failing")
+		return [path]
+	
+	if delta == (0, 0):
+		return []
+
+	i, j = current
+	di, dj = delta
+
+	if di == 0:
+		di_move = []
+	else:
+		di_step = int((di * -1)/abs(di))
+		move_symbol = DIRECTION_MAP[(di_step, 0)]
+		# print("i move_symbol", move_symbol)
+		new_coord = (i + di_step, j)
+		di_move = move(new_coord, final, (di + di_step, dj), path+move_symbol, empty_space)
+	
+	if dj == 0:
+		dj_move = []
+	else:
+		dj_step = int((dj * -1)/abs(dj))
+		move_symbol = DIRECTION_MAP[(0, dj_step)]
+		# print("j move_symbol", move_symbol)
+		new_coord = (i, j + dj_step)
+		dj_move = move(new_coord, final, (di, dj + dj_step), path+move_symbol, empty_space)
+
+	return di_move + dj_move
+
+
+def get_possible_paths(initial, final, empty_space) -> str:
 	(ii, ij), (fi, fj) = initial, final
 	di, dj = (ii - fi, ij - fj)
-	# print("-"*10)
-	# print("from to", initial, final)
-	# print("-"*10)
 
-	def get_delta_i_step(di, pos) ->  Tuple[Tuple[int, int], int, str] | None:
-		if di == 0:
-			return None
-		i, j = pos
-		step =int((di * -1)/abs(di))
-		new_coord = (i + step, j)
-		if new_coord == empty_space:
-			return None
-		else:
-			move_symbol = DIRECTION_MAP[(step, 0)]
-			# print("symbol", move_symbol, "new di", di + step)
-			return (new_coord, di + step, move_symbol)
+	possible_paths = [path for path in move(initial, final, (di, dj), "", empty_space)]
+	# print("possible paths", possible_paths)
+	return possible_paths
 
 
-	def get_delta_j_step(dj, pos) -> Tuple[Tuple[int, int], int, str] | None:
-		if dj == 0:
-			return None
-		i, j = pos
-		step = int((dj * -1)/abs(dj))
-		new_coord = (i, j + step)
-		if new_coord == empty_space:
-			return None
-		else:
-			move_symbol = DIRECTION_MAP[(0, step)]
-			# print("symbol", move_symbol, "new dj", dj + step)
-			return (new_coord, dj + step, move_symbol)
-
-
-	directions = ""
-	current_coord = initial
-	# print("di", di, "dj", dj)
-	while di != 0 or dj != 0:
-		changed = False
-		symbol = "x"
-
-		move_i = get_delta_i_step(di, current_coord)
-		if not changed and move_i != None:
-			new_coord, new_di, symbol = move_i
-			di = new_di
-			changed = True
-
-		move_j = get_delta_j_step(dj, current_coord)
-		if not changed and move_j != None:
-			new_coord, new_dj, symbol = move_j
-			dj = new_dj
-			changed = True
-
-		directions += symbol
-		current_coord = new_coord
-	# print("Directions", directions)
-	
-	return directions
-
-
-def get_all_permutations(path) -> List[str]:
-	all_permutations = [''.join(p) for p in permutations(path)]
-	return all_permutations
+# def get_all_permutations(path) -> List[str]:
+# 	all_permutations = [''.join(p) for p in permutations(path)]
+# 	return all_permutations
 
 
 def get_number_keyboard_paths() -> Dict[Tuple[str, str], str]:
@@ -163,7 +141,7 @@ def get_number_keyboard_paths() -> Dict[Tuple[str, str], str]:
 		"0": (3, 1),
 		"A": (3, 2),
 	}
-	return {(f, t): set(get_all_permutations(get_path((fi, fj), (ti, tj))))  for f, (fi, fj) in keypad_mappings.items() for t, (ti, tj) in keypad_mappings.items() if f != t}
+	return {(f, t): get_possible_paths((fi, fj), (ti, tj), (3, 0))  for f, (fi, fj) in keypad_mappings.items() for t, (ti, tj) in keypad_mappings.items() if f != t}
 
 NUMBER_KEYBOARD_PATHS = get_number_keyboard_paths()
 
@@ -176,7 +154,7 @@ def get_arrow_keyboard_paths():
 		">": (1, 2),
 	}
 
-	return {(f, t): set(get_all_permutations(get_path((fi, fj), (ti, tj))))  for f, (fi, fj) in keypad_mappings.items() for t, (ti, tj) in keypad_mappings.items() if f != t}
+	return {(f, t): get_possible_paths((fi, fj), (ti, tj), (0, 0))  for f, (fi, fj) in keypad_mappings.items() for t, (ti, tj) in keypad_mappings.items() if f != t}
 
 
 ARROW_KEYBOARD_PATHS = get_arrow_keyboard_paths()
@@ -237,7 +215,7 @@ def get_shortest_combination(partitions):
 
 
 def main():
-	codes = get_input(FILE_PATH_EXAMPLE)
+	codes = get_input(FILE_PATH_MAIN)
 
 	# collected_partitions = collect_partitions([["A"], ["1", "2"], ["X", "Y"]])
 	# print(collected_partitions)
@@ -247,10 +225,11 @@ def main():
 	# for key, paths in ARROW_KEYBOARD_PATHS.items():
 	# 	print(key, paths)
 
-	for row in [codes[3]]:
-		print(row)
+	shortest_paths = []
+	for row in codes:
+		# print(row)
 		lvl1_paths = list(translate_number_keypad(row))
-		print(lvl1_paths)
+		# print(lvl1_paths)
 		# print("finished lvl1 with ", len(lvl1_paths))
 		# print(lvl1_paths)
 		# print(">> min lvl1", min(lvl1_paths, key=len))
@@ -264,17 +243,24 @@ def main():
 		# print("lvl2_paths", lvl2_paths)
 		# print("finished lvl2 with ", len(lvl2_paths))
 
-	# 	print(lvl2_paths)
-	# 	# # lvl2_min = min(lvl2_paths, key=len)
-	# 	# # print(">> min lvl2", lvl2_min, "len", len(lvl2_min))
+		# print(lvl2_paths)
+		# # lvl2_min = min(lvl2_paths, key=len)
+		# # print(">> min lvl2", lvl2_min, "len", len(lvl2_min))
 		lvl3_partitions_groups = [ translate_arrow_keypad(path) for path in lvl2_paths]
 		min_path_len = min([get_shortest_combination(partitions_group) for partitions_group in lvl3_partitions_groups])
-		print("Result", min_path_len)
+		# print("Result", min_path_len)
+		shortest_paths.append((row, min_path_len))
 		# lvl3_paths = [path3 for path in lvl2_paths for path3 in translate_arrow_keypad(path)]
 		# lvl3_min = min(lvl3_paths, key=len)
-	# 	# print(">> min lvl3", lvl3_min, "len", len(lvl3_min))
-	# 	# # print(lvl3_paths)
-	# 	# # print(">> min lvl3", min(lvl3_paths, key=len))
+	# # 	# print(">> min lvl3", lvl3_min, "len", len(lvl3_min))
+	# # 	# # print(lvl3_paths)
+	# # 	# # print(">> min lvl3", min(lvl3_paths, key=len))
+
+	results = []
+	for cmd, min_path in shortest_paths:
+		cmd_number = int(cmd[:-1])
+		results.append(cmd_number * min_path)
+	print("Result1: ", sum(results))
 
 if __name__ == "__main__":
 	main()
