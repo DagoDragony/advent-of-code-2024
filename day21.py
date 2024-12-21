@@ -140,6 +140,10 @@ def get_path(initial, final) -> str:
 	return directions
 
 
+def get_all_permutations(path):
+	all_permutations = [''.join(p) for p in permutations(path)]
+	return all_permutations
+
 def get_number_keyboard_paths() -> Dict[Tuple[str, str], str]:
 	keypad_mappings = {
 		"7": (0, 0),
@@ -160,10 +164,6 @@ def get_number_keyboard_paths() -> Dict[Tuple[str, str], str]:
 	return {(f, t): get_all_permutations(get_path((fi, fj), (ti, tj)))  for f, (fi, fj) in keypad_mappings.items() for t, (ti, tj) in keypad_mappings.items() if f != t}
 
 NUMBER_KEYBOARD_PATHS = get_number_keyboard_paths()
-
-def get_all_permutations(path):
-	all_permutations = [''.join(p) for p in permutations(path)]
-	return all_permutations
 
 def get_arrow_keyboard_paths():
 	keypad_mappings = {
@@ -193,10 +193,10 @@ def translate_number_keypad(symbols, debug = False):
 			r = path + "A"
 			if debug:
 				print(f"{previous_symbol} -> {s}:", r)
-			r[i] += r
+			result[i] += r
 			# print(r)
 			previous_symbol = s
-	return result
+	return set(result.values())
 
 
 def translate_arrow_keypad(symbols, debug = False):
@@ -228,35 +228,40 @@ def main():
 	codes = get_input(FILE_PATH_EXAMPLE)
 
 	row = codes[0]
+	lvl1_paths = translate_number_keypad(row)
+	print(lvl1_paths)
+	lvl2_paths = [translate_arrow_keypad(path) for path in lvl1_paths]
+	print(lvl2_paths)
 
-	number_keyboard_paths = get_number_keyboard_paths()
-	arrow_keyboard_paths = get_arrow_keyboard_paths()
 
-	for (fr, to), path in number_keyboard_paths.items():
+	# number_keyboard_paths = get_number_keyboard_paths()
+	# arrow_keyboard_paths = get_arrow_keyboard_paths()
+
+	# for (fr, to), path in number_keyboard_paths.items():
 
 		
 
-	for row in codes:
-		print(row)
-		lvl1_paths = translate_number_keypad(row)
-		# print(NUMBER_KEYBOARD_PATHS)
-		lvl2 = translate_arrow_keypad(lvl1)
-		lvl3 = translate_arrow_keypad(lvl2)
-		print("lvl1", lvl1, len(lvl1))
-		print("lvl2", lvl2, len(lvl2))
-		print("lvl3", lvl3, len(lvl3))
-		# result = ""
-		# for s in row:
-		# 	mi, mj = number_keyboard_paths[(previous_symbol, s)]
-		# 	si, sj = direction_symbols(mi, mj)
-		# 	r = sj*abs(mj) + si*abs(mi) +"A"
-		# 	# print(f"{previous_symbol} -> {s}:", mi, mj)
-		# 	# print("directions", si, sj)
-		# 	# print(r)
-		# 	result += r
-		# 	# print(r)
-		# 	previous_symbol = s
-		# print("lvl1:", result)
+	# for row in codes:
+	# 	print(row)
+	# 	lvl1_paths = translate_number_keypad(row)
+	# 	# print(NUMBER_KEYBOARD_PATHS)
+	# 	lvl2 = translate_arrow_keypad(lvl1)
+	# 	lvl3 = translate_arrow_keypad(lvl2)
+	# 	print("lvl1", lvl1, len(lvl1))
+	# 	print("lvl2", lvl2, len(lvl2))
+	# 	print("lvl3", lvl3, len(lvl3))
+	# 	# result = ""
+	# 	# for s in row:
+	# 	# 	mi, mj = number_keyboard_paths[(previous_symbol, s)]
+	# 	# 	si, sj = direction_symbols(mi, mj)
+	# 	# 	r = sj*abs(mj) + si*abs(mi) +"A"
+	# 	# 	# print(f"{previous_symbol} -> {s}:", mi, mj)
+	# 	# 	# print("directions", si, sj)
+	# 	# 	# print(r)
+	# 	# 	result += r
+	# 	# 	# print(r)
+	# 	# 	previous_symbol = s
+	# 	# print("lvl1:", result)
 		
 
 
