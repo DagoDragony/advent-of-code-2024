@@ -121,6 +121,8 @@ def execute_program(program, A, B, C):
 	output = []
 	# print(program)
 	while True:
+		initial_a = register.a
+		initial_c = register.c
 		if counter == len(program):
 			# print("Program finished")
 			break
@@ -156,7 +158,7 @@ def execute_program(program, A, B, C):
 				if register.a != 0:
 					# print(f"Set counter {register.a}")
 					counter = operand
-					print(f">>> a={register.a} b={register.a%8}")
+					# print(f">>> a={register.a} b={register.a%8}")
 					# print(f"Jumped {operand}")
 					continue
 			case 4:
@@ -166,7 +168,7 @@ def execute_program(program, A, B, C):
 				# out - combo modulo 8, output
 				# print(operand_value)
 				output_number = operand_value % 8
-				print("output_number", output_number)
+				print("ia", str(initial_a).rjust(3), "ib", str(initial_a % 8).rjust(3), "op", str(operand_value).rjust(3), "ic", str(register.c).rjust(3), "o", output_number)
 				output.append(output_number)
 			case 6:
 				# bdv - like adv, but send to B
@@ -207,7 +209,7 @@ def main():
 
 	for i in range(1, 30):
 		register, output = execute_program(program.program, i, program.b, program.c)				
-		print(i, output, register)
+		# print(i, output, register)
 		# print(f"Result1: "+ ",".join([str(n) for n in output]))
 
 	# test("2,6", c=9, eb=1)
