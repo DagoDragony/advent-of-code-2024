@@ -165,7 +165,9 @@ def execute_program(program, A, B, C):
 			case 5:
 				# out - combo modulo 8, output
 				# print(operand_value)
-				output.append(operand_value % 8)
+				output_number = operand_value % 8
+				print("output_number", output_number)
+				output.append(output_number)
 			case 6:
 				# bdv - like adv, but send to B
 				register.b = register.a // (2**operand_value)
