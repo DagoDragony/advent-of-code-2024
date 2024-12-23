@@ -54,16 +54,40 @@ def get_combo_value(op_code, operand, register):
 			raise Exception(f"Found 7 in combo {op_code},{operand}")
 
 def get_program_itself(program):
+	program_without_jump = program[:-2]
+	reversed_program = list(reversed(program))
 	a_values = []
-	a, b, c = 0, 0, 0
-	print(list(reversed(program)))
+	print(reversed_program)
+	a = 0 
+	for i, code in enumerate(reversed_program):
+		a = a * 8
+		output = None
+		print("searching for", code)
+		done = 0
+		while True:
+			_, output = execute_iteration(program_without_jump, Register(a, 0, 0))
+			if output == code:
+				if i == 14 and done < 1:
+					a = (a - (a // 8))
+					print("previous a", a)
+					done += 1
+					# continue
+				else:
+					break
+			a += 1
+		_, output = execute_program(program, a, 0, 0)
+		print("i", i, "found a", a)
+		print("result:", output)
+		a_values.append(a)
+
+	return a
+	
 	# for i in reversed(program):
 	# 	print(program[i])
 
-def execute_iteration(program, A):
-	register = Register(A, 0, 0)
+def execute_iteration(program, register):
 	counter = 0
-	output = []
+	output = -1
 	# print(program)
 	while counter < len(program):
 		if counter == len(program):
@@ -103,7 +127,8 @@ def execute_iteration(program, A):
 				# print(operand_value)
 				output_number = operand_value % 8
 				# print("ia", str(initial_a).rjust(3), "ib", str(initial_a % 8).rjust(3), "op", str(operand_value).rjust(3), "ic", str(register.c).rjust(3), "o", output_number)
-				output.append(output_number)
+				output = output_number
+				# output.append(output_number)
 			case 6:
 				# bdv - like adv, but send to B
 				register.b = register.a // (2**operand_value)
@@ -119,11 +144,11 @@ def execute_program(program, A, B, C):
 
 	output = []
 	# print(program)
-	a = A
-	while a != 0:
-		register, output = execute_iteration(program_without_jump, a)
-		a = register.a
-		output.append(output)
+	register = Register(A, B, C)
+	while register.a != 0:
+		register, iteration_output = execute_iteration(program_without_jump, register)
+		output.append(iteration_output)
+
 	return (register, output)
      
 
@@ -149,16 +174,27 @@ def test(str_program, a=0, b=0, c=0, ea=None, eb=None, ec=None, eoutput=None):
 def main():
 	program = get_program(FILE_PATH)
 	print(program)
-	# register, output = execute_program(program.program, program.a, program.b, program.c)				
-	# print(output, register)
-	# print(f"Result1: "+ ",".join([str(n) for n in output]))
+	register, output = execute_program(program.program, program.a, program.b, program.c)				
+	print(output, register)
+	print(f"Result1: "+ ",".join([str(n) for n in output]))
 
-	for i in [1]:
+	for i in range(1, 10):
 		register, output = execute_program(program.program, i, program.b, program.c)				
-		print(output)
-		# print(get_program_itself(program.program))
-		# print(i, output, register)
-		# print(f"Result1: "+ ",".join([str(n) for n in output]))
+		print(f"{i}: {output}")
+	# 	# print(get_program_itself(program.program))
+	# 	# print(i, output, register)
+	# 	# print(f"Result1: "+ ",".join([str(n) for n in output]))
+
+
+	a_for_program_copy = get_program_itself(program.program)
+	# register, output = execute_program(program.program, a_for_program_copy, program.b, program.c)				
+	# register, output = execute_program(program.program, 20534878121424, program.b, program.c)				
+	register, output = execute_program(program.program, 164279024971426, program.b, program.c)				
+
+	print(f"Result2: {a_for_program_copy}")
+	print(f"Result   program: {output}")
+	print(f"Original program: {program.program}")
+
 
 	# test("2,6", c=9, eb=1)
 	# test("5,0,5,1,5,4", a = 10, eoutput=[0, 1, 2])
