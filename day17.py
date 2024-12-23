@@ -53,76 +53,19 @@ def get_combo_value(op_code, operand, register):
 		case 7:
 			raise Exception(f"Found 7 in combo {op_code},{operand}")
 
+def get_program_itself(program):
+	a_values = []
+	a, b, c = 0, 0, 0
+	print(list(reversed(program)))
+	# for i in reversed(program):
+	# 	print(program[i])
 
-def get_itself_program(program, B, C):
-	combo_ops = set([0, 2, 5, 6, 7])
-	A = 0
-	while True:
-		i = 0
-		register = Register(A, B, C)
-		counter = 0
-		output = []
-		while True:
-			if counter == len(program):
-				# print("Program finished")
-				break
-			if counter + 1 >= len(program):
-				raise Exception("counter is too far")
-
-			op, operand = program[counter], program[counter + 1], 
-			
-			
-			def truncate(number):
-				return number % 8
-
-			operand_value = get_combo_value(op, operand, register) if op in combo_ops else operand
-			# print("operand")
-			# print(f"   {counter}: {op},{operand} v={operand_value} A={register.a} B={register.b} C={register.c}")
-			
-			# recheck everything of which uses combo operands and which literal operands
-			match op:
-				case 0:
-					# adv - A division 2 in power of combo_value, send to A
-					register.a = register.a // (2**operand_value)
-				case 1:
-					# bxl - B bitwise XOR combo send to B
-					register.b = register.b ^ operand_value
-				case 2:
-					# bst - combo modulo 8, truncate, send to B
-					register.b = truncate(operand_value % 8)
-				case 3:
-					# jnz - A == 0 do nothing, A != 0 JUMP TO A
-					if register.a != 0:
-						# print(f"Set counter {register.a}")
-						counter = operand
-						print(f"{output} a={register.a} b={register.b} c={register.c}")
-						# print(f"Jumped {operand}")
-						continue
-				case 4:
-					# bxc - B bitwise XOR C, send to B
-					register.b = register.b ^ register.c
-				case 5:
-					# out - combo modulo 8, output
-					# print(operand_value)
-					output.append(operand_value % 8)
-				case 6:
-					# bdv - like adv, but send to B
-					register.b = register.a // (2**operand_value)
-				case 7:
-					# cdv - like adv, but send to C
-					register.c = register.a // (2**operand_value)
-			counter += 2
-			# print(f">> {counter}: {op},{operand} v={operand_value} A={register.a} B={register.b} C={register.c}")
-		return (register, output)
-
-def execute_program(program, A, B, C):
-	register = Register(A, B, C)
+def execute_iteration(program, A):
+	register = Register(A, 0, 0)
 	counter = 0
 	output = []
 	# print(program)
-	while True:
-		initial_a = register.a
-		initial_c = register.c
+	while counter < len(program):
 		if counter == len(program):
 			# print("Program finished")
 			break
@@ -133,7 +76,6 @@ def execute_program(program, A, B, C):
 		
 		combo_ops = set([0, 2, 5, 6, 7])
 
-		
 		def truncate(number):
 			return number % 8
 
@@ -153,14 +95,6 @@ def execute_program(program, A, B, C):
 			case 2:
 				# bst - combo modulo 8, truncate, send to B
 				register.b = truncate(operand_value % 8)
-			case 3:
-				# jnz - A == 0 do nothing, A != 0 JUMP TO A
-				if register.a != 0:
-					# print(f"Set counter {register.a}")
-					counter = operand
-					# print(f">>> a={register.a} b={register.a%8}")
-					# print(f"Jumped {operand}")
-					continue
 			case 4:
 				# bxc - B bitwise XOR C, send to B
 				register.b = register.b ^ register.c
@@ -168,7 +102,7 @@ def execute_program(program, A, B, C):
 				# out - combo modulo 8, output
 				# print(operand_value)
 				output_number = operand_value % 8
-				print("ia", str(initial_a).rjust(3), "ib", str(initial_a % 8).rjust(3), "op", str(operand_value).rjust(3), "ic", str(register.c).rjust(3), "o", output_number)
+				# print("ia", str(initial_a).rjust(3), "ib", str(initial_a % 8).rjust(3), "op", str(operand_value).rjust(3), "ic", str(register.c).rjust(3), "o", output_number)
 				output.append(output_number)
 			case 6:
 				# bdv - like adv, but send to B
@@ -178,6 +112,18 @@ def execute_program(program, A, B, C):
 				register.c = register.a // (2**operand_value)
 		counter += 2
 		# print(f">> {counter}: {op},{operand} v={operand_value} A={register.a} B={register.b} C={register.c}")
+	return (register, output)
+
+def execute_program(program, A, B, C):
+	program_without_jump = program[:-2]
+
+	output = []
+	# print(program)
+	a = A
+	while a != 0:
+		register, output = execute_iteration(program_without_jump, a)
+		a = register.a
+		output.append(output)
 	return (register, output)
      
 
@@ -192,7 +138,7 @@ def test(str_program, a=0, b=0, c=0, ea=None, eb=None, ec=None, eoutput=None):
 	register, output = execute_program(program, a, b, c)				
 	# print(output, register)
 	if ea != None:
-		assert register.a == ea, f"{register.a} != ea"
+		assert register.a == ea, f"{register.a} != {ea}"
 	if eb != None:
 		assert register.b == eb, f"{register.b} != {eb}"
 	if ec != None:
@@ -207,8 +153,10 @@ def main():
 	# print(output, register)
 	# print(f"Result1: "+ ",".join([str(n) for n in output]))
 
-	for i in range(1, 30):
+	for i in [1]:
 		register, output = execute_program(program.program, i, program.b, program.c)				
+		print(output)
+		# print(get_program_itself(program.program))
 		# print(i, output, register)
 		# print(f"Result1: "+ ",".join([str(n) for n in output]))
 

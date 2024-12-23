@@ -83,30 +83,20 @@ def get_biggest_lan_party(all_connections):
 				nodes = count_nodes[count]
 				print("nodes:", nodes)
 			if len(nodes) == count + 1:
-				return nodes + pc
+				if len(biggest_lan_party) < len(nodes) + 1:
+					biggest_lan_party = nodes | {pc}
+				break
+	return biggest_lan_party
 
 
 def main():
-	all_connections = get_input(FILE_PATH_EXAMPLE)
+	all_connections = get_input(FILE_PATH_MAIN)
 	# print(all_connections)
 
-
 	print("Result1", get_size_3_lan_parties(all_connections))
-	print("Result2", get_biggest_lan_party(all_connections))
+	biggest_lan_party = get_biggest_lan_party(all_connections)
+	print("Result2", ",".join(sorted(list(biggest_lan_party))))
 
-
-			
-
-
-
-		# nodes.sort()
-		# grouped = { k: list(g) for k, g in groupby(nodes)}
-		# print(list(grouped))
-		# counts = {value: key for key, value in grouped}
-		# print(counts)
-		
-
-		
 		
 if __name__ == "__main__":
 	main()
