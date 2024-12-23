@@ -67,9 +67,9 @@ def get_program_itself(program):
 		while True:
 			_, output = execute_iteration(program_without_jump, Register(a, 0, 0))
 			if output == code:
-				if i == 14 and done < 1:
-					a = (a - (a // 8))
+				if i == 14 and done < 4:
 					print("previous a", a)
+					# a = a * 1000000
 					done += 1
 					# continue
 				else:
@@ -77,7 +77,7 @@ def get_program_itself(program):
 			a += 1
 		_, output = execute_program(program, a, 0, 0)
 		print("i", i, "found a", a)
-		print("result:", output)
+		print("program output:", output)
 		a_values.append(a)
 
 	return a
@@ -187,9 +187,9 @@ def main():
 
 
 	a_for_program_copy = get_program_itself(program.program)
-	# register, output = execute_program(program.program, a_for_program_copy, program.b, program.c)				
+	register, output = execute_program(program.program, a_for_program_copy, program.b, program.c)				
 	# register, output = execute_program(program.program, 20534878121424, program.b, program.c)				
-	register, output = execute_program(program.program, 164279024971426, program.b, program.c)				
+	# register, output = execute_program(program.program, 164279024971426, program.b, program.c)				
 
 	print(f"Result2: {a_for_program_copy}")
 	print(f"Result   program: {output}")
