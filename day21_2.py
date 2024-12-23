@@ -25,13 +25,7 @@ ALL_DIRECTIONS = [
 ]
 
 
-@dataclass
-class Trie:
-	nodes: Dict[str, Tuple['Trie', bool]] = field(default_factory=dict)
-
-
 Coord: TypeAlias = tuple[int, int]
-
 
 def get_input(file_path) -> List[str]:
     script_dir = os.path.dirname(os.path.abspath(__file__))
@@ -89,13 +83,7 @@ def get_possible_paths(initial, final, empty_space) -> str:
 	di, dj = (ii - fi, ij - fj)
 
 	possible_paths = [path for path in move(initial, final, (di, dj), "", empty_space)]
-	# print("possible paths", possible_paths)
 	return possible_paths
-
-
-# def get_all_permutations(path) -> List[str]:
-# 	all_permutations = [''.join(p) for p in permutations(path)]
-# 	return all_permutations
 
 
 def get_number_keyboard_paths() -> Dict[Tuple[str, str], str]:
@@ -148,8 +136,19 @@ def translate_number_keypad(symbols, debug = False):
 	
 	return set(results)
 
+cache = {}
 
-def translate_arrow_keypad(symbols, debug = False):
+
+# def translate_arrow_keypad(symbols):
+
+
+def get_shortest_path(symbols, debug = False):
+	symbols.split("A")
+
+	if symbols in cache:
+		print("reused cache")
+		return cache[symbols]
+
 	if debug:
 		print(symbols)
 
@@ -185,9 +184,10 @@ def get_shortest_combination(partitions):
 	return min(results)
 
 
-def get_partitions_group(initial_paths, indirection_count):
+def get_shortest_path(initial_paths, indirection_count):
 	paths = initial_paths
 	for i in range(indirection_count):
+		print("indirection", i)
 		partitions_groups = [translate_arrow_keypad(path) for path in paths]
 		if not i + 1 == indirection_count:
 			paths = [path for partitions_group in partitions_groups for path in collect_partitions(partitions_group)] 
@@ -198,28 +198,28 @@ def get_partitions_group(initial_paths, indirection_count):
 def main():
 	codes = get_input(FILE_PATH_MAIN)
 
+	# shortest_paths = []
+	# for row in codes:
+	# 	lvl1_paths = list(translate_number_keypad(row))
+
+	# 	lvl2_partitions_groups = [translate_arrow_keypad(path) for path in lvl1_paths]
+	# 	lvl2_paths = [path for lvl2_partitions_group in lvl2_partitions_groups for path in collect_partitions(lvl2_partitions_group)] 
+	# 	lvl3_partitions_groups = [ translate_arrow_keypad(path) for path in lvl2_paths]
+
+	# 	min_path_len = min([get_shortest_combination(partitions_group) for partitions_group in lvl3_partitions_groups])
+	# 	shortest_paths.append((row, min_path_len))
+
+
+	# results = []
+	# for cmd, min_path in shortest_paths:
+	# 	cmd_number = int(cmd[:-1])
+	# 	results.append(cmd_number * min_path)
+	# print("Result1: ", sum(results))
+
 	shortest_paths = []
 	for row in codes:
 		lvl1_paths = list(translate_number_keypad(row))
-
-		lvl2_partitions_groups = [translate_arrow_keypad(path) for path in lvl1_paths]
-		lvl2_paths = [path for lvl2_partitions_group in lvl2_partitions_groups for path in collect_partitions(lvl2_partitions_group)] 
-		lvl3_partitions_groups = [ translate_arrow_keypad(path) for path in lvl2_paths]
-
-		min_path_len = min([get_shortest_combination(partitions_group) for partitions_group in lvl3_partitions_groups])
-		shortest_paths.append((row, min_path_len))
-
-
-	results = []
-	for cmd, min_path in shortest_paths:
-		cmd_number = int(cmd[:-1])
-		results.append(cmd_number * min_path)
-	print("Result1: ", sum(results))
-
-	shortest_paths = []
-	for row in codes:
-		lvl1_paths = list(translate_number_keypad(row))
-		final_partitions_groups = get_partitions_group(lvl1_paths, 2)
+		final_partitions_groups = get_shortest_path(lvl1_paths, 2)
 
 		min_path_len = min([get_shortest_combination(partitions_group) for partitions_group in final_partitions_groups])
 		shortest_paths.append((row, min_path_len))
