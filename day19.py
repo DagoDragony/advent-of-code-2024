@@ -104,7 +104,5 @@ def main():
 	print(f"Result1: {sum(possible_designs)}")
 
 
-
-
 if __name__ == "__main__":
 	main()
