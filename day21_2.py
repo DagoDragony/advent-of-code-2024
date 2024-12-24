@@ -142,7 +142,7 @@ cache = {}
 # def translate_arrow_keypad(symbols):
 
 
-def get_shortest_path(symbols, debug = False):
+def get_shortest_path_main(symbols, debug = False):
 	symbols.split("A")
 
 	if symbols in cache:
