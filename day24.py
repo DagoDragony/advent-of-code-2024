@@ -86,7 +86,7 @@ def binary_to_decimal(values):
 		number += (value * 2 ** i)
 	return number
 
-def decimal_to_binary(number):
+def decimal_to_binary(number) -> List[int]:
 	print(f"converting {number}")
 	byte_list = []
 	i = 0
@@ -97,7 +97,7 @@ def decimal_to_binary(number):
 	
 	print(f"converted to {byte_list}")
 	print(f"converted back is  {binary_to_decimal(byte_list)}")
-	return number
+	return byte_list
 
 
 def calculate_z_value(input):
@@ -117,24 +117,47 @@ def solve2(input: Input):
 	x_operands = sorted([(name, value) for name, value in input.initial_values if name.startswith("x")])
 	y_operands = sorted([(name, value) for name, value in input.initial_values if name.startswith("y")]) 
 
-	x_bytes = [v for _, v in x_operands]
-	y_bytes = [v for _, v in y_operands]
+	x_binary = [v for _, v in x_operands]
+	y_binary = [v for _, v in y_operands]
 
-	x_decimal = binary_to_decimal(x_bytes)
-	y_decimal = binary_to_decimal(y_bytes)
+	x_decimal = binary_to_decimal(x_binary)
+	y_decimal = binary_to_decimal(y_binary)
 
+	expected_z_decimal = (x_decimal + y_decimal)
+	expected_z_binary = decimal_to_binary(expected_z_decimal)
 
+	actual_z_decimal = calculate_z_value(input)
+	actual_z_binary = decimal_to_binary(actual_z_decimal)
 
+	mismatches = []
+	for i in range(max(len(x_operands), len(y_operands)) + 1):
+		expected = actual_z_binary[i] if len(actual_z_binary) > i else 0
+		actual = expected_z_binary[i] if len(expected_z_binary) > i else 0
 
-	rezult_decimal = (x_decimal + y_decimal)
-	rezult_decimal = decimal_to_binary(rezult_decimal)
-	actual_z_value = calculate_z_value(input)
-	actual_bytes = decimal_to_binary(actual_z_value)
-
-
-
-
-	print(x_decimal, y_decimal)
+		if expected  != actual:
+			mismatches.append(i)
+	
+	mismatch_names = ["z{:02}".format(mismatch) for mismatch in mismatches]
+	
+	all_mismatching_operands = set(mismatch_names)
+	members_to_check = list(mismatch_names)
+	while members_to_check:
+		member_to_check = members_to_check.pop()
+		for gate in input.gates:
+			if gate.result == member_to_check:
+				new_operands = [gate.op1, gate.op2]
+				def is_valid(operand):
+					return all([
+						operand not in all_mismatching_operands,
+						not operand.startswith("x"),
+						not operand.startswith("y")
+					])
+				valid_new_operands = [operand for operand in new_operands if is_valid(operand)]
+				for valid_new_operand in valid_new_operands:
+					all_mismatching_operands.add(valid_new_operand)
+					members_to_check.append(valid_new_operand)
+	print("all_mismatching_members", all_mismatching_operands)
+	print("all_mismatching_members_count:", len(all_mismatching_operands))
 
 
 def main():
@@ -145,10 +168,8 @@ def main():
 	for gate in input.gates:
 		print(gate)
 
-	print(decimal_to_binary(12))
-
 	# print(f"Result1: {solve1(input)}")
-	# print(f"Result2: {solve2(input)}")
+	print(f"Result2: {solve2(input)}")
 
 		
 if __name__ == "__main__":
