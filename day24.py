@@ -7,6 +7,8 @@ from collections import deque
 
 DAY = 24
 FILE_PATH_EXAMPLE = f"inputs/input_d{DAY}_example1.txt"
+FILE_PATH_EXAMPLE2 = f"inputs/input_d{DAY}_example2.txt"
+FILE_PATH_EXAMPLE3 = f"inputs/input_d{DAY}_example3.txt"
 FILE_PATH_MAIN = f"inputs/input_d{DAY}.txt"
 
 @dataclass
@@ -23,7 +25,7 @@ class Input:
 	gates: List[Gate]
 
 
-def get_input(file_path) -> List[Gate]:
+def get_input(file_path) -> Input:
 	script_dir = os.path.dirname(os.path.abspath(__file__))
 	full_path = os.path.join(script_dir, file_path)
 
@@ -34,7 +36,8 @@ def get_input(file_path) -> List[Gate]:
 
 	def parse_value(line) -> Tuple[str, bool]:
 		operand, value = line.split(": ")
-		return (operand, bool(value))
+		
+		return (operand, True if value == "1" else False)
 
 
 	with open(full_path, 'r') as file:
@@ -83,15 +86,21 @@ def binary_to_decimal(values):
 		number += (value * 2 ** i)
 	return number
 
+def decimal_to_binary(number):
+	print(f"converting {number}")
+	byte_list = []
+	i = 0
+	while number != 0:
+		mod = number % 2
+		byte_list.append(mod)
+		number = number // 2
+	
+	print(f"converted to {byte_list}")
+	print(f"converted back is  {binary_to_decimal(byte_list)}")
+	return number
 
-def main():
-	input = get_input(FILE_PATH_EXAMPLE)
-	for value in input.initial_values:
-		print(value)
 
-	for gate in input.gates:
-		print(gate)
-
+def calculate_z_value(input):
 	calculated_values = get_calculated_values(input)
 	for key, value in calculated_values.items():
 		print(key, value)
@@ -101,7 +110,45 @@ def main():
 		print(z_value)
 
 	result = binary_to_decimal([value for _, value in z_values])
-	print(result)
+	return result
+
+def solve2(input: Input):
+	print(input.initial_values)
+	x_operands = sorted([(name, value) for name, value in input.initial_values if name.startswith("x")])
+	y_operands = sorted([(name, value) for name, value in input.initial_values if name.startswith("y")]) 
+
+	x_bytes = [v for _, v in x_operands]
+	y_bytes = [v for _, v in y_operands]
+
+	x_decimal = binary_to_decimal(x_bytes)
+	y_decimal = binary_to_decimal(y_bytes)
+
+
+
+
+	rezult_decimal = (x_decimal + y_decimal)
+	rezult_decimal = decimal_to_binary(rezult_decimal)
+	actual_z_value = calculate_z_value(input)
+	actual_bytes = decimal_to_binary(actual_z_value)
+
+
+
+
+	print(x_decimal, y_decimal)
+
+
+def main():
+	input = get_input(FILE_PATH_EXAMPLE3)
+	for value in input.initial_values:
+		print(value)
+
+	for gate in input.gates:
+		print(gate)
+
+	print(decimal_to_binary(12))
+
+	# print(f"Result1: {solve1(input)}")
+	# print(f"Result2: {solve2(input)}")
 
 		
 if __name__ == "__main__":
