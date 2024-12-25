@@ -175,6 +175,9 @@ def collect_partitions(partitions):
 	return results
 
 
+# (path, indirection_count): length count
+cache = {}
+
 def get_shortest_combination(partitions):
 	results = [0]
 
@@ -182,6 +185,7 @@ def get_shortest_combination(partitions):
 		results = list(set([ r + len(part) for part in partition for r in results]))
 	
 	return min(results)
+
 
 
 def get_shortest_path(initial_paths, indirection_count):
