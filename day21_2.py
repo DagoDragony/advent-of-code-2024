@@ -184,7 +184,9 @@ def get_shortest_combination(partitions):
 	return min(results)
 
 
-def get_shortest_path(initial_paths, indirection_count):
+# (path, indirection_count): length count
+cache = {}
+def get_shortest_path(path, indirection_count):
 	paths = initial_paths
 	for i in range(indirection_count):
 		print("indirection", i)
