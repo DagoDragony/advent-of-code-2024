@@ -187,6 +187,7 @@ def get_shortest_combination(partitions):
 	return min(results)
 
 
+<<<<<<< HEAD
 
 def get_shortest_path(initial_paths, indirection_count):
 	paths = initial_paths
@@ -195,8 +196,35 @@ def get_shortest_path(initial_paths, indirection_count):
 		partitions_groups = [translate_arrow_keypad(path) for path in paths]
 		if not i + 1 == indirection_count:
 			paths = [path for partitions_group in partitions_groups for path in collect_partitions(partitions_group)] 
+=======
+# (path, indirection_count): length count
+cache = {}
+def get_shortest_path(last_symbol, path, indirection_count) -> int:
+	# A part?
+	if indirection_count == 0:
+		return len(path) + len("A")
+>>>>>>> 34484e8a20f2dce72c4ccc47e4967ae655d4dff8
 
-	return partitions_groups
+	key = (path, indirection_count)
+	if key in cache:
+		return cache[key]
+
+	shortest_path = 99999999999999999999999
+	for i in range(len(path) - 1):
+		for path in ARROW_KEYBOARD_PATHS[(path[i], path[i+1])]:
+			path_len = get_shortest_combination(path, indirection_count - 1) 
+			if shortest_path > path_len:
+				shortest_path = path_len
+	
+
+
+	# for i in range(indirection_count):
+	# 	print("indirection", i)
+	# 	partitions_groups = [translate_arrow_keypad(path) for path in paths]
+	# 	if not i + 1 == indirection_count:
+	# 		paths = [path for partitions_group in partitions_groups for path in collect_partitions(partitions_group)] 
+
+	# return partitions_groups
 
 
 def main():
@@ -223,7 +251,8 @@ def main():
 	shortest_paths = []
 	for row in codes:
 		lvl1_paths = list(translate_number_keypad(row))
-		final_partitions_groups = get_shortest_path(lvl1_paths, 2)
+
+		final_partitions_groups = get_shortest_path("A", lvl1_paths, 2)
 
 		min_path_len = min([get_shortest_combination(partitions_group) for partitions_group in final_partitions_groups])
 		shortest_paths.append((row, min_path_len))

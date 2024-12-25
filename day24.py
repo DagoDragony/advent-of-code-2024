@@ -176,32 +176,32 @@ def solve2(input: Input):
 
 
 def main():
-	input = get_input(FILE_PATH_MAIN)
+	input = get_input(FILE_PATH_EXAMPLE3)
 	for value in input.initial_values:
 		print(value)
 
 	for gate in input.gates:
 		print(gate)
 
-	customizable_operands = set()
-	def is_new_customizable(operand: str):
-		return all([
-			not operand in customizable_operands,
-			not operand.startswith("x"),
-			not operand.startswith("y"),
-			not operand.startswith("z"),
-		])
-	for gate in input.gates:
-		for op in [gate.op1, gate.op2, gate.result]:
-			if is_new_customizable(op):
-				customizable_operands.add(op)
-	print(customizable_operands)
-	print(len(customizable_operands))
+	# customizable_operands = set()
+	# def is_new_customizable(operand: str):
+	# 	return all([
+	# 		not operand in customizable_operands,
+	# 		not operand.startswith("x"),
+	# 		not operand.startswith("y"),
+	# 		# not operand.startswith("z"),
+	# 	])
+	# for gate in input.gates:
+	# 	for op in [gate.op1, gate.op2, gate.result]:
+	# 		if is_new_customizable(op):
+	# 			customizable_operands.add(op)
+	# print(customizable_operands)
+	# print(len(customizable_operands))
 
 
 
 	# print(f"Result1: {solve1(input)}")
-	# print(f"Result2: {solve2(input)}")
+	print(f"Result2: {solve2(input)}")
 
 		
 if __name__ == "__main__":
