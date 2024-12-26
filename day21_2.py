@@ -186,12 +186,12 @@ def collect_full_paths(current_position, symbols, debug = False):
 
 # (current_position, path, indirection_count): length count
 # cache = {}
-def get_shortest_path(current_position, path_to_symbol, indirection_count) -> Tuple[str, int]:
+def get_shortest_path(current_position, combination, indirection_count) -> Tuple[str, int]:
 	# Go to location
 	# Press A to confirm this location
 	# If location is right already, just press A
 	if indirection_count == 0:
-		return (path_to_symbol[-2], len(path_to_symbol))
+		return (len(combination), current_position)
 
 	# key = (path_to_location, indirection_count)
 	# if key in cache:
@@ -199,12 +199,21 @@ def get_shortest_path(current_position, path_to_symbol, indirection_count) -> Tu
 
 	shortest_final_path = 0
 
-	full_path = current_position + path_to_symbol
+	full_combination = current_position + combination
 
-	for i in range(len(full_path) - 1):
+	paths = [path for path in ARROW_KEYBOARD_PATHS[(full_combination[i], full_combination[i+1])]]
+
+	for i in range(len(full_combination) - 1):
 		shortest_in_paths = 9999999999999999999999
-		for path in ARROW_KEYBOARD_PATHS[(full_path[i], full_path[i+1])]:
-			current_position, path_len = get_shortest_path(current_position, path, indirection_count - 1) 
+		for path in ARROW_KEYBOARD_PATHS[(full_combination[i], full_combination[i+1])]:
+			# P1_1
+			# P1_2
+			# P1_3
+
+   
+
+			path_len, current_position = get_shortest_path(current_position, path, indirection_count - 1) 
+
 
 			if path_len < shortest_in_paths:
 				shortest_in_paths = path_len
@@ -238,7 +247,7 @@ def main():
 	shortest_paths = []
 	for row in codes[:1]:
 		# lvl1_paths = list(translate_number_keypad(row))
-		# shortest = [get_shortest_path("A", path, 2)[1] for path in lvl1_paths]
+		# shortest = [get_shortest_path("A", path, 2)[0] for path in lvl1_paths]
 		# print(min(shortest))
 		# for path in lvl1_paths:
 		# 	print(path)
