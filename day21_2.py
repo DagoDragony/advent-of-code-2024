@@ -82,7 +82,7 @@ def get_possible_paths(initial, final, empty_space) -> str:
 	(ii, ij), (fi, fj) = initial, final
 	di, dj = (ii - fi, ij - fj)
 
-	possible_paths = [path for path in move(initial, final, (di, dj), "", empty_space)]
+	possible_paths = [path + "A" for path in move(initial, final, (di, dj), "", empty_space)]
 	return possible_paths
 
 
@@ -104,21 +104,6 @@ def get_number_keyboard_paths() -> Dict[Tuple[str, str], str]:
 
 NUMBER_KEYBOARD_PATHS = get_number_keyboard_paths()
 
-def get_arrow_keyboard_paths():
-	keypad_mappings = {
-		"^": (0, 1),
-		"A": (0, 2),
-		"<": (1, 0),
-		"v": (1, 1),
-		">": (1, 2),
-	}
-
-	return {(f, t): get_possible_paths((fi, fj), (ti, tj), (0, 0))  for f, (fi, fj) in keypad_mappings.items() for t, (ti, tj) in keypad_mappings.items() if f != t}
-
-
-ARROW_KEYBOARD_PATHS = get_arrow_keyboard_paths()
-
-
 def translate_number_keypad(symbols, debug = False):
 	if debug:
 		print(symbols)
@@ -129,8 +114,7 @@ def translate_number_keypad(symbols, debug = False):
 			results = [r + "A" for r in results]
 			continue 
 		
-		paths = [path + "A" for path in NUMBER_KEYBOARD_PATHS[(previous_symbol, s)]]
-		results = [r + path for path in paths for r in results]
+		results = [r + path for path in NUMBER_KEYBOARD_PATHS[(previous_symbol, s)] for r in results]
 
 		previous_symbol = s
 	
@@ -175,9 +159,6 @@ def collect_partitions(partitions):
 	return results
 
 
-# (path, indirection_count): length count
-cache = {}
-
 def get_shortest_combination(partitions):
 	results = [0]
 
@@ -187,34 +168,23 @@ def get_shortest_combination(partitions):
 	return min(results)
 
 
-<<<<<<< HEAD
-
-def get_shortest_path(initial_paths, indirection_count):
-	paths = initial_paths
-	for i in range(indirection_count):
-		print("indirection", i)
-		partitions_groups = [translate_arrow_keypad(path) for path in paths]
-		if not i + 1 == indirection_count:
-			paths = [path for partitions_group in partitions_groups for path in collect_partitions(partitions_group)] 
-=======
 # (path, indirection_count): length count
-cache = {}
-def get_shortest_path(last_symbol, path, indirection_count) -> int:
-	# A part?
-	if indirection_count == 0:
-		return len(path) + len("A")
->>>>>>> 34484e8a20f2dce72c4ccc47e4967ae655d4dff8
+# cache = {}
+# def get_shortest_path(last_symbol, path, indirection_count) -> int:
+# 	# A part?
+# 	if indirection_count == 0:
+# 		return len(path) + len("A")
 
-	key = (path, indirection_count)
-	if key in cache:
-		return cache[key]
+# 	key = (path, indirection_count)
+# 	if key in cache:
+# 		return cache[key]
 
-	shortest_path = 99999999999999999999999
-	for i in range(len(path) - 1):
-		for path in ARROW_KEYBOARD_PATHS[(path[i], path[i+1])]:
-			path_len = get_shortest_combination(path, indirection_count - 1) 
-			if shortest_path > path_len:
-				shortest_path = path_len
+# 	shortest_path = 99999999999999999999999
+# 	for i in range(len(path) - 1):
+# 		for path in ARROW_KEYBOARD_PATHS[(path[i], path[i+1])]:
+# 			path_len = get_shortest_combination(path, indirection_count - 1) 
+# 			if shortest_path > path_len:
+# 				shortest_path = path_len
 	
 
 
@@ -249,20 +219,28 @@ def main():
 	# print("Result1: ", sum(results))
 
 	shortest_paths = []
-	for row in codes:
-		lvl1_paths = list(translate_number_keypad(row))
+	for row in codes[:1]:
+		# lvl1_paths = list(translate_number_keypad(row))
+		# for path in lvl1_paths:
+		# 	print(path)
 
-		final_partitions_groups = get_shortest_path("A", lvl1_paths, 2)
+		print("-" * 30)
 
-		min_path_len = min([get_shortest_combination(partitions_group) for partitions_group in final_partitions_groups])
-		shortest_paths.append((row, min_path_len))
+		lvl1_paths2 = list(translate_number_keypad(row))
+		for path in lvl1_paths2:
+			print(path)
+
+		# final_partitions_groups = get_shortest_path("A", lvl1_paths, 2)
+
+		# min_path_len = min([get_shortest_combination(partitions_group) for partitions_group in final_partitions_groups])
+		# shortest_paths.append((row, min_path_len))
 
 
-	results = []
-	for cmd, min_path in shortest_paths:
-		cmd_number = int(cmd[:-1])
-		results.append(cmd_number * min_path)
-	print("Result1: ", sum(results))
+	# results = []
+	# for cmd, min_path in shortest_paths:
+	# 	cmd_number = int(cmd[:-1])
+	# 	results.append(cmd_number * min_path)
+	# print("Result1: ", sum(results))
 
 if __name__ == "__main__":
 	main()
