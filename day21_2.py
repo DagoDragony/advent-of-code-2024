@@ -82,7 +82,7 @@ def get_possible_paths(initial, final, empty_space) -> str:
 	(ii, ij), (fi, fj) = initial, final
 	di, dj = (ii - fi, ij - fj)
 
-	possible_paths = [path + "A" for path in move(initial, final, (di, dj), "", empty_space)]
+	possible_paths = [path for path in move(initial, final, (di, dj), "", empty_space)]
 	return possible_paths
 
 
@@ -100,7 +100,7 @@ def get_number_keyboard_paths() -> Dict[Tuple[str, str], str]:
 		"0": (3, 1),
 		"A": (3, 2),
 	}
-	return {(f, t): get_possible_paths((fi, fj), (ti, tj), (3, 0))  for f, (fi, fj) in keypad_mappings.items() for t, (ti, tj) in keypad_mappings.items() if f != t}
+	return {(f, t): get_possible_paths((fi, fj), (ti, tj), (3, 0))  for f, (fi, fj) in keypad_mappings.items() for t, (ti, tj) in keypad_mappings.items()}
 
 NUMBER_KEYBOARD_PATHS = get_number_keyboard_paths()
 
@@ -114,7 +114,7 @@ def translate_number_keypad(symbols, debug = False):
 			results = [r + "A" for r in results]
 			continue 
 		
-		results = [r + path for path in NUMBER_KEYBOARD_PATHS[(previous_symbol, s)] for r in results]
+		results = [r + path + "A" for path in NUMBER_KEYBOARD_PATHS[(previous_symbol, s)] for r in results]
 
 		previous_symbol = s
 	
@@ -148,13 +148,13 @@ def get_arrow_keyboard_paths():
 		">": (1, 2),
 	}
 
-	return {(f, t): get_possible_paths((fi, fj), (ti, tj), (0, 0))  for f, (fi, fj) in keypad_mappings.items() for t, (ti, tj) in keypad_mappings.items() if f != t}
+	return {(f, t): get_possible_paths((fi, fj), (ti, tj), (0, 0))  for f, (fi, fj) in keypad_mappings.items() for t, (ti, tj) in keypad_mappings.items()}
 
 
 ARROW_KEYBOARD_PATHS = get_arrow_keyboard_paths()
 
 
-def get_shortest_path_main(previous_symbol, symbols) -> List[str]:
+def collect_path(previous_symbol, symbols) -> List[str]:
 	results = []
 	for s in symbols:
 		if previous_symbol == s:
@@ -168,26 +168,44 @@ def get_shortest_path_main(previous_symbol, symbols) -> List[str]:
 	return (previous_symbol, results)
 
 
-# (path, indirection_count): length count
-cache = {}
-def get_shortest_path(last_symbol, path, indirection_count) -> Tuple[str, int]:
-	# A part?
-	if indirection_count == 0:
-		return (path[-2], len(path))
+def collect_full_paths(current_position, symbols, debug = False):
+	if debug:
+		print(symbols)
+	results = [""]
+	for s in symbols:
+		if current_position == s:
+			results = [r + "A" for r in results]
+			continue 
+		
+		results = [r + path for path in NUMBER_KEYBOARD_PATHS[(current_position, s)] for r in results]
 
-	key = (last_symbol, path, indirection_count)
-	if key in cache:
-		return cache[key]
+		current_position = s
+	
+	return results
+
+
+# (current_position, path, indirection_count): length count
+# cache = {}
+def get_shortest_path(current_position, path_to_symbol, indirection_count) -> Tuple[str, int]:
+	# Go to location
+	# Press A to confirm this location
+	# If location is right already, just press A
+	if indirection_count == 0:
+		return (path_to_symbol[-2], len(path_to_symbol))
+
+	# key = (path_to_location, indirection_count)
+	# if key in cache:
+	# 	return cache[key]
 
 	shortest_final_path = 0
 
-	for i in range(len(path) - 1):
+	full_path = current_position + path_to_symbol
 
-  
-
+	for i in range(len(full_path) - 1):
 		shortest_in_paths = 9999999999999999999999
-		for path in ARROW_KEYBOARD_PATHS[(path[i], path[i+1])]:
-			last_symbol, path_len = get_shortest_path(last_symbol, path, indirection_count - 1) 
+		for path in ARROW_KEYBOARD_PATHS[(full_path[i], full_path[i+1])]:
+			current_position, path_len = get_shortest_path(current_position, path, indirection_count - 1) 
+
 			if path_len < shortest_in_paths:
 				shortest_in_paths = path_len
 
@@ -220,10 +238,12 @@ def main():
 	shortest_paths = []
 	for row in codes[:1]:
 		# lvl1_paths = list(translate_number_keypad(row))
+		# shortest = [get_shortest_path("A", path, 2)[1] for path in lvl1_paths]
+		# print(min(shortest))
 		# for path in lvl1_paths:
 		# 	print(path)
 
-		print("-" * 30)
+		# print("-" * 30)
 
 		lvl1_paths = list(translate_number_keypad(row))
 		for path in lvl1_paths:
