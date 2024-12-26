@@ -154,22 +154,18 @@ def get_arrow_keyboard_paths():
 ARROW_KEYBOARD_PATHS = get_arrow_keyboard_paths()
 
 
-def get_shortest_path_main(previous_symbol, symbols, debug = False):
-	# if debug:
-	# 	print(symbols)
-
+def get_shortest_path_main(previous_symbol, symbols) -> List[str]:
 	results = []
 	for s in symbols:
 		if previous_symbol == s:
 			results.append(["A"])
 			continue 
 		
-		paths = [path for path in ARROW_KEYBOARD_PATHS[(previous_symbol, s)]]
-		results.append(paths)
+		results.append(ARROW_KEYBOARD_PATHS[(previous_symbol, s)])
 
 		previous_symbol = s
 
-	return results
+	return (previous_symbol, results)
 
 
 # (path, indirection_count): length count
@@ -177,7 +173,7 @@ cache = {}
 def get_shortest_path(last_symbol, path, indirection_count) -> Tuple[str, int]:
 	# A part?
 	if indirection_count == 0:
-		return len(path)
+		return (path[-2], len(path))
 
 	key = (last_symbol, path, indirection_count)
 	if key in cache:
@@ -186,6 +182,9 @@ def get_shortest_path(last_symbol, path, indirection_count) -> Tuple[str, int]:
 	shortest_final_path = 0
 
 	for i in range(len(path) - 1):
+
+  
+
 		shortest_in_paths = 9999999999999999999999
 		for path in ARROW_KEYBOARD_PATHS[(path[i], path[i+1])]:
 			last_symbol, path_len = get_shortest_path(last_symbol, path, indirection_count - 1) 
@@ -193,7 +192,6 @@ def get_shortest_path(last_symbol, path, indirection_count) -> Tuple[str, int]:
 				shortest_in_paths = path_len
 
 		shortest_final_path += shortest_in_paths
-	
 
 	return shortest_final_path
 
