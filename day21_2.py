@@ -120,35 +120,7 @@ def translate_number_keypad(symbols, debug = False):
 	
 	return set(results)
 
-cache = {}
 
-
-# def translate_arrow_keypad(symbols):
-
-
-def get_shortest_path_main(symbols, debug = False):
-	symbols.split("A")
-
-	if symbols in cache:
-		print("reused cache")
-		return cache[symbols]
-
-	if debug:
-		print(symbols)
-
-	results = []
-	previous_symbol = "A"
-	for s in symbols:
-		if previous_symbol == s:
-			results.append(["A"])
-			continue 
-		
-		paths = [path + "A" for path in ARROW_KEYBOARD_PATHS[(previous_symbol, s)]]
-		results.append(paths)
-
-		previous_symbol = s
-
-	return results
 
 
 def collect_partitions(partitions):
@@ -159,42 +131,71 @@ def collect_partitions(partitions):
 	return results
 
 
-def get_shortest_combination(partitions):
-	results = [0]
+# def get_shortest_combination(partitions):
+# 	results = [0]
 
-	for partition in partitions:
-		results = list(set([ r + len(part) for part in partition for r in results]))
+# 	for partition in partitions:
+# 		results = list(set([ r + len(part) for part in partition for r in results]))
 	
-	return min(results)
+# 	return min(results)
+
+def get_arrow_keyboard_paths():
+	keypad_mappings = {
+		"^": (0, 1),
+		"A": (0, 2),
+		"<": (1, 0),
+		"v": (1, 1),
+		">": (1, 2),
+	}
+
+	return {(f, t): get_possible_paths((fi, fj), (ti, tj), (0, 0))  for f, (fi, fj) in keypad_mappings.items() for t, (ti, tj) in keypad_mappings.items() if f != t}
+
+
+ARROW_KEYBOARD_PATHS = get_arrow_keyboard_paths()
+
+
+def get_shortest_path_main(previous_symbol, symbols, debug = False):
+	# if debug:
+	# 	print(symbols)
+
+	results = []
+	for s in symbols:
+		if previous_symbol == s:
+			results.append(["A"])
+			continue 
+		
+		paths = [path for path in ARROW_KEYBOARD_PATHS[(previous_symbol, s)]]
+		results.append(paths)
+
+		previous_symbol = s
+
+	return results
 
 
 # (path, indirection_count): length count
-# cache = {}
-# def get_shortest_path(last_symbol, path, indirection_count) -> int:
-# 	# A part?
-# 	if indirection_count == 0:
-# 		return len(path) + len("A")
+cache = {}
+def get_shortest_path(last_symbol, path, indirection_count) -> Tuple[str, int]:
+	# A part?
+	if indirection_count == 0:
+		return len(path)
 
-# 	key = (path, indirection_count)
-# 	if key in cache:
-# 		return cache[key]
+	key = (last_symbol, path, indirection_count)
+	if key in cache:
+		return cache[key]
 
-# 	shortest_path = 99999999999999999999999
-# 	for i in range(len(path) - 1):
-# 		for path in ARROW_KEYBOARD_PATHS[(path[i], path[i+1])]:
-# 			path_len = get_shortest_combination(path, indirection_count - 1) 
-# 			if shortest_path > path_len:
-# 				shortest_path = path_len
+	shortest_final_path = 0
+
+	for i in range(len(path) - 1):
+		shortest_in_paths = 9999999999999999999999
+		for path in ARROW_KEYBOARD_PATHS[(path[i], path[i+1])]:
+			last_symbol, path_len = get_shortest_path(last_symbol, path, indirection_count - 1) 
+			if path_len < shortest_in_paths:
+				shortest_in_paths = path_len
+
+		shortest_final_path += shortest_in_paths
 	
 
-
-	# for i in range(indirection_count):
-	# 	print("indirection", i)
-	# 	partitions_groups = [translate_arrow_keypad(path) for path in paths]
-	# 	if not i + 1 == indirection_count:
-	# 		paths = [path for partitions_group in partitions_groups for path in collect_partitions(partitions_group)] 
-
-	# return partitions_groups
+	return shortest_final_path
 
 
 def main():
@@ -226,8 +227,8 @@ def main():
 
 		print("-" * 30)
 
-		lvl1_paths2 = list(translate_number_keypad(row))
-		for path in lvl1_paths2:
+		lvl1_paths = list(translate_number_keypad(row))
+		for path in lvl1_paths:
 			print(path)
 
 		# final_partitions_groups = get_shortest_path("A", lvl1_paths, 2)
