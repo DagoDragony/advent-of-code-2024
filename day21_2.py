@@ -8,20 +8,6 @@ DAY = 21
 FILE_PATH_EXAMPLE = f"inputs/input_d{DAY}_example1.txt"
 FILE_PATH_MAIN = f"inputs/input_d{DAY}.txt"
 
-RIGHT=(0, 1)
-LEFT=(0, -1)
-UP=(-1, 0)
-DOWN=(1, 0)
-
-ALL_DIRECTIONS = [
-	RIGHT,
-	LEFT,
-	UP,
-	DOWN,
-]
-
-
-Coord: TypeAlias = tuple[int, int]
 
 def get_input(file_path) -> List[str]:
     script_dir = os.path.dirname(os.path.abspath(__file__))
