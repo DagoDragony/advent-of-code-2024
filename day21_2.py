@@ -1,12 +1,8 @@
 import os
 import os
-from dataclasses import dataclass, field
-from typing import Tuple, List, Iterable, TypeAlias, Dict
-from enum import Enum
-from collections import defaultdict
-import time
-from heapq import heappush, heappop
-from itertools import groupby, permutations
+from functools import cache
+from typing import Tuple, List, TypeAlias, Dict
+from itertools import pairwise
 
 DAY = 21
 FILE_PATH_EXAMPLE = f"inputs/input_d{DAY}_example1.txt"
@@ -82,7 +78,7 @@ def get_possible_paths(initial, final, empty_space) -> str:
 	(ii, ij), (fi, fj) = initial, final
 	di, dj = (ii - fi, ij - fj)
 
-	possible_paths = [path for path in move(initial, final, (di, dj), "", empty_space)]
+	possible_paths = [path + "A" for path in move(initial, final, (di, dj), "", empty_space)]
 	return possible_paths
 
 
@@ -121,24 +117,6 @@ def translate_number_keypad(symbols, debug = False):
 	return set(results)
 
 
-
-
-def collect_partitions(partitions):
-	results = [""]
-
-	for partition in partitions:
-		results = [ r + part for part in partition for r in results]
-	return results
-
-
-# def get_shortest_combination(partitions):
-# 	results = [0]
-
-# 	for partition in partitions:
-# 		results = list(set([ r + len(part) for part in partition for r in results]))
-	
-# 	return min(results)
-
 def get_arrow_keyboard_paths():
 	keypad_mappings = {
 		"^": (0, 1),
@@ -154,121 +132,40 @@ def get_arrow_keyboard_paths():
 ARROW_KEYBOARD_PATHS = get_arrow_keyboard_paths()
 
 
-def collect_path(previous_symbol, symbols) -> List[str]:
-	results = []
-	for s in symbols:
-		if previous_symbol == s:
-			results.append(["A"])
-			continue 
+@cache
+def get_shortest_path(code: str, depth: int, number_pad = False) -> int:
+	"""
+	Go to location
+	Press A to confirm this location
+	If location is right already, just press A
+ 	"""
+	result = 0
+
+	for b1, b2 in pairwise("A" + code):
+		paths = NUMBER_KEYBOARD_PATHS[(b1, b2)] if number_pad else ARROW_KEYBOARD_PATHS[(b1, b2)]
 		
-		results.append(ARROW_KEYBOARD_PATHS[(previous_symbol, s)])
-
-		previous_symbol = s
-
-	return (previous_symbol, results)
-
-
-def collect_full_paths(current_position, symbols, debug = False):
-	if debug:
-		print(symbols)
-	results = [""]
-	for s in symbols:
-		if current_position == s:
-			results = [r + "A" for r in results]
-			continue 
-		
-		results = [r + path for path in NUMBER_KEYBOARD_PATHS[(current_position, s)] for r in results]
-
-		current_position = s
-	
-	return results
-
-
-# (current_position, path, indirection_count): length count
-# cache = {}
-def get_shortest_path(current_position, combination, indirection_count) -> Tuple[str, int]:
-	# Go to location
-	# Press A to confirm this location
-	# If location is right already, just press A
-	if indirection_count == 0:
-		return (len(combination), current_position)
-
-	# key = (path_to_location, indirection_count)
-	# if key in cache:
-	# 	return cache[key]
-
-	shortest_final_path = 0
-
-	full_combination = current_position + combination
-
-	paths = [path for path in ARROW_KEYBOARD_PATHS[(full_combination[i], full_combination[i+1])]]
-
-	for i in range(len(full_combination) - 1):
-		shortest_in_paths = 9999999999999999999999
-		for path in ARROW_KEYBOARD_PATHS[(full_combination[i], full_combination[i+1])]:
-			# P1_1
-			# P1_2
-			# P1_3
-
-   
-
-			path_len, current_position = get_shortest_path(current_position, path, indirection_count - 1) 
-
-
-			if path_len < shortest_in_paths:
-				shortest_in_paths = path_len
-
-		shortest_final_path += shortest_in_paths
-
-	return shortest_final_path
+		if depth == 0:
+			result += min(len(path) for path in paths)
+		else:
+			result += min(get_shortest_path(path, depth - 1) for path in paths) 
+	return result
 
 
 def main():
 	codes = get_input(FILE_PATH_MAIN)
 
-	# shortest_paths = []
-	# for row in codes:
-	# 	lvl1_paths = list(translate_number_keypad(row))
-
-	# 	lvl2_partitions_groups = [translate_arrow_keypad(path) for path in lvl1_paths]
-	# 	lvl2_paths = [path for lvl2_partitions_group in lvl2_partitions_groups for path in collect_partitions(lvl2_partitions_group)] 
-	# 	lvl3_partitions_groups = [ translate_arrow_keypad(path) for path in lvl2_paths]
-
-	# 	min_path_len = min([get_shortest_combination(partitions_group) for partitions_group in lvl3_partitions_groups])
-	# 	shortest_paths.append((row, min_path_len))
-
-
-	# results = []
-	# for cmd, min_path in shortest_paths:
-	# 	cmd_number = int(cmd[:-1])
-	# 	results.append(cmd_number * min_path)
-	# print("Result1: ", sum(results))
-
 	shortest_paths = []
-	for row in codes[:1]:
-		# lvl1_paths = list(translate_number_keypad(row))
-		# shortest = [get_shortest_path("A", path, 2)[0] for path in lvl1_paths]
-		# print(min(shortest))
-		# for path in lvl1_paths:
-		# 	print(path)
+	for row in codes:
+		print(row)
+		shortest = get_shortest_path(row, 25, True)
+		print("shortest", shortest)
+		shortest_paths.append((row, shortest))
 
-		# print("-" * 30)
-
-		lvl1_paths = list(translate_number_keypad(row))
-		for path in lvl1_paths:
-			print(path)
-
-		# final_partitions_groups = get_shortest_path("A", lvl1_paths, 2)
-
-		# min_path_len = min([get_shortest_combination(partitions_group) for partitions_group in final_partitions_groups])
-		# shortest_paths.append((row, min_path_len))
-
-
-	# results = []
-	# for cmd, min_path in shortest_paths:
-	# 	cmd_number = int(cmd[:-1])
-	# 	results.append(cmd_number * min_path)
-	# print("Result1: ", sum(results))
+	results = []
+	for cmd, min_path in shortest_paths:
+		cmd_number = int(cmd[:-1])
+		results.append(cmd_number * min_path)
+	print("Result: ", sum(results))
 
 if __name__ == "__main__":
 	main()
