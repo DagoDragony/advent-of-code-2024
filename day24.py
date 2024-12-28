@@ -4,9 +4,9 @@ from collections import defaultdict, Counter
 from itertools import combinations, groupby
 from dataclasses import dataclass
 from collections import deque
-import networkx as nx
-import matplotlib.pyplot as plt
-from graphviz import Digraph
+# import networkx as nx
+# import matplotlib.pyplot as plt
+# from graphviz import Digraph
 
 DAY = 24
 FILE_PATH_EXAMPLE = f"inputs/input_d{DAY}_example1.txt"
@@ -177,66 +177,111 @@ def solve2(input: Input):
 	# print("all_mismatching_members", all_mismatching_operands)
 	# print("all_mismatching_members_count:", len(all_mismatching_operands))
 
+def get_z_anomalies(gates: List[Gate]) -> List[str]:
+	"""
+	Getting z result should be done through XOR operation
+	Exception - last z byte
+ 	"""
+	z_to_swap = []
+	last_z = "z" + str(max([int(gate.result[1:]) for gate in gates if gate.result.startswith("z")]))
+	
+	for gate in gates:
+		if gate.result.startswith("z") and gate.result != last_z:
+			if gate.operator != "XOR":
+				z_to_swap.append(gate.result)
+	return z_to_swap
+
+
+def get_intermediate_anomalies(gates: List[Gate]) -> List[str]:
+	"""
+	If inputs are not x, y and output is not z, then operations should be AND or OR
+ 	"""
+	valid_operations = set(["AND", "OR"])
+	def input_is_x_y(gate: Gate):
+		return gate.op1.startswith(("x", "y")) or gate.op2.startswith(("x", "y"))
+
+	def output_is_z(gate: Gate):
+		return gate.result.startswith("z")
+
+	invalid_operands = []
+	for gate in gates:
+		if not input_is_x_y(gate) and not output_is_z(gate):
+			if not gate.operator in valid_operations:
+				invalid_operands.append(gate.result)
+
+	return invalid_operands
+
+
+def solve2(input: Input):
+	print(get_z_anomalies(input.gates))
+	print(get_intermediate_anomalies(input.gates))
+
+	# input.gates
+
 
 def main():
 	input = get_input(FILE_PATH_MAIN)
 	for value in input.initial_values:
 		print(value)
+	
+	print(solve2(input))
+	
+	
+	
 
 
-
-	# Create a new directed graph
-	dot = Digraph()
-
-	for gate in input.gates:
-		dot.node(gate.op1, gate.op1)
-		dot.node(gate.op2, gate.op2)
-		dot.node(gate.result, gate.result)
-
-	for gate in input.gates:
-		dot.edge(gate.op1, gate.result, label=gate.operator)
-		dot.edge(gate.op2, gate.result, label=gate.operator)
-
-
-	# Render and view the graph (in PNG format)
-	dot.render('graph_operations', format='png', view=True)
-
-
-	# # Create a graph
-	# G = nx.Graph()
-	# for gate in input.gates:
-	# 	G.add_edge(gate.op1, gate.result, label=gate.operator)
-	# 	G.add_edge(gate.op2, gate.result, label=gate.operator)
-
-	# pos = nx.spring_layout(G)
-	# labels = nx.get_edge_attributes(G, 'label')
-	# nx.draw(G, pos, with_labels=True, node_size=2000, node_color='skyblue')
-	# nx.draw_networkx_edge_labels(G, pos, edge_labels=labels)
-
-	# plt.show()
+	# # Create a new directed graph
+	# dot = Digraph()
 
 	# for gate in input.gates:
-	# 	print(gate)
+	# 	dot.node(gate.op1, gate.op1)
+	# 	dot.node(gate.op2, gate.op2)
+	# 	dot.node(gate.result, gate.result)
 
-	# customizable_operands = set()
-	# def is_new_customizable(operand: str):
-	# 	return all([
-	# 		not operand in customizable_operands,
-	# 		not operand.startswith("x"),
-	# 		not operand.startswith("y"),
-	# 		# not operand.startswith("z"),
-	# 	])
 	# for gate in input.gates:
-	# 	for op in [gate.op1, gate.op2, gate.result]:
-	# 		if is_new_customizable(op):
-	# 			customizable_operands.add(op)
-	# print(customizable_operands)
-	# print(len(customizable_operands))
+	# 	dot.edge(gate.op1, gate.result, label=gate.operator)
+	# 	dot.edge(gate.op2, gate.result, label=gate.operator)
+
+
+	# # Render and view the graph (in PNG format)
+	# dot.render('graph_operations', format='png', view=True)
+
+
+	# # # Create a graph
+	# # G = nx.Graph()
+	# # for gate in input.gates:
+	# # 	G.add_edge(gate.op1, gate.result, label=gate.operator)
+	# # 	G.add_edge(gate.op2, gate.result, label=gate.operator)
+
+	# # pos = nx.spring_layout(G)
+	# # labels = nx.get_edge_attributes(G, 'label')
+	# # nx.draw(G, pos, with_labels=True, node_size=2000, node_color='skyblue')
+	# # nx.draw_networkx_edge_labels(G, pos, edge_labels=labels)
+
+	# # plt.show()
+
+	# # for gate in input.gates:
+	# # 	print(gate)
+
+	# # customizable_operands = set()
+	# # def is_new_customizable(operand: str):
+	# # 	return all([
+	# # 		not operand in customizable_operands,
+	# # 		not operand.startswith("x"),
+	# # 		not operand.startswith("y"),
+	# # 		# not operand.startswith("z"),
+	# # 	])
+	# # for gate in input.gates:
+	# # 	for op in [gate.op1, gate.op2, gate.result]:
+	# # 		if is_new_customizable(op):
+	# # 			customizable_operands.add(op)
+	# # print(customizable_operands)
+	# # print(len(customizable_operands))
 
 
 
-	# print(f"Result1: {solve1(input)}")
-	# print(f"Result2: {solve2(input)}")
+	# # print(f"Result1: {solve1(input)}")
+	# # print(f"Result2: {solve2(input)}")
 
 
 
