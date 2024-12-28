@@ -131,26 +131,6 @@ def main():
 	end = find_tile("E", race_map)
 
 	shortest_path, shortest_paths = get_shortest_paths(start, end, race_map)
-	# print("Shortest path", shortest_paths[end])
-	# for i, row in enumerate(race_map):
-	# 	line = ""
-	# 	for j, s in enumerate(row):
-	# 		if (i, j) in shortest_path:
-	# 			line += "*"
-	# 		else:
-	# 			line += s
-	# 	print(line)
-
-
-	# dot_count = sum([1 for i, row in enumerate(race_map) for j, s in enumerate(row) if s == "."])
-	# print("Dot count", dot_count)
-	# for i, row in enumerate(race_map):
-	# 	line = ""
-	# 	for j, s in enumerate(row):
-	# 		if (i, j) in shortest_path:
-	# 			line += "*"
-	# 		else:
-	# 			line += s
 
 	walkable_walls = get_walkable_walls(race_map)
 	print("walkable walls", len(walkable_walls))
@@ -160,8 +140,8 @@ def main():
 		if side1 in shortest_paths and side2 in shortest_paths:
 			saved.append(abs(shortest_paths[side1] - shortest_paths[side2])-2)
 	print("max_saved", max(saved))
-	print("savings", saved)
-	print("savings count", len(saved))
+	# print("savings", saved)
+	# print("savings count", len(saved))
 	print("Original path", shortest_paths[end])
 	print("Result1:", len([s for s in saved if s >= 100]))
 	print()

@@ -1,12 +1,7 @@
 import os
-from typing import Tuple, List, Dict
-from collections import defaultdict, Counter
-from itertools import combinations, groupby
+from typing import Tuple, List
 from dataclasses import dataclass
 from collections import deque
-# import networkx as nx
-# import matplotlib.pyplot as plt
-# from graphviz import Digraph
 
 DAY = 24
 FILE_PATH_EXAMPLE = f"inputs/input_d{DAY}_example1.txt"
@@ -75,7 +70,6 @@ def get_calculated_values(input):
 
 		if gate.op1 in op_values and gate.op2 in op_values:
 			result = execute_operation(op_values[gate.op1], gate.operator, op_values[gate.op2])
-			# print(f"{gate.result}: {gate.op1}({op_values[gate.op1]}) {gate.operator} {gate.op2}({op_values[gate.op2]}) = {result}")
 			op_values[gate.result] = result
 		else:
 			unprocessed_gates.append(gate)
@@ -83,14 +77,12 @@ def get_calculated_values(input):
 
 
 def binary_to_decimal(values):
-	# print(values)
 	number = 0
 	for i, value in enumerate(values):
 		number += (value * 2 ** i)
 	return number
 
 def decimal_to_binary(number) -> List[int]:
-	# print(f"converting {number}")
 	byte_list = []
 	i = 0
 	while number != 0:
@@ -98,19 +90,13 @@ def decimal_to_binary(number) -> List[int]:
 		byte_list.append(mod)
 		number = number // 2
 	
-	# print(f"converted to {byte_list}")
-	# print(f"converted back is  {binary_to_decimal(byte_list)}")
 	return byte_list
 
 
 def calculate_z_value(input):
 	calculated_values = get_calculated_values(input)
-	# for key, value in calculated_values.items():
-		# print(key, value)
 
 	z_values = sorted([ (key, int(value)) for key, value in calculated_values.items() if key.startswith("z") ])
-	# for z_value in z_values:
-		# print(z_value)
 
 	return z_values
 
@@ -119,63 +105,6 @@ def solve1(input: Input):
 	result = binary_to_decimal([value for _, value in z_values])
 	return result
 
-def solve2(input: Input):
-	# print(input.initial_values)
-	x_operands = sorted([(name, int(value)) for name, value in input.initial_values if name.startswith("x")])
-	y_operands = sorted([(name, int(value)) for name, value in input.initial_values if name.startswith("y")]) 
-	print("x o", x_operands)
-	print("y o", y_operands)
-
-
-
-	x_binary = [v for _, v in x_operands]
-	y_binary = [v for _, v in y_operands]
-	print("x b", x_binary)
-	print("y b", y_binary)
-
-	# x_decimal = binary_to_decimal(x_binary)
-	# y_decimal = binary_to_decimal(y_binary)
-	# print("x bin", bin(x_decimal))
-	# print("y bin", bin(y_decimal))
-
-	# expected_z_decimal = (x_decimal & y_decimal)
-	expected_z_binary = [int(x_binary[i] and y_binary[i]) for i in range(len(x_binary))]
-
-	actual_z_binary = [str(value) for _, value in calculate_z_value(input)]
-	print("Expected:", expected_z_binary)
-	print("Actual  :", [int(v) for v in actual_z_binary])
-
-	mismatches = []
-	for i in range(max(len(x_operands), len(y_operands)) + 1):
-		expected = actual_z_binary[i] if len(actual_z_binary) > i else 0
-		actual = expected_z_binary[i] if len(expected_z_binary) > i else 0
-
-		if expected  != actual:
-			mismatches.append(i)
-
-	print("z mismatches", mismatches)
-	
-	mismatch_names = ["z{:02}".format(mismatch) for mismatch in mismatches]
-	
-	# all_mismatching_operands = set(mismatch_names)
-	# members_to_check = list(mismatch_names)
-	# while members_to_check:
-	# 	member_to_check = members_to_check.pop()
-	# 	for gate in input.gates:
-	# 		if gate.result == member_to_check:
-	# 			new_operands = [gate.op1, gate.op2]
-	# 			def is_valid(operand):
-	# 				return all([
-	# 					operand not in all_mismatching_operands,
-	# 					not operand.startswith("x"),
-	# 					not operand.startswith("y")
-	# 				])
-	# 			valid_new_operands = [operand for operand in new_operands if is_valid(operand)]
-	# 			for valid_new_operand in valid_new_operands:
-	# 				all_mismatching_operands.add(valid_new_operand)
-	# 				members_to_check.append(valid_new_operand)
-	# print("all_mismatching_members", all_mismatching_operands)
-	# print("all_mismatching_members_count:", len(all_mismatching_operands))
 
 def get_z_anomalies(gates: List[Gate]) -> List[str]:
 	"""
@@ -192,13 +121,11 @@ def get_z_anomalies(gates: List[Gate]) -> List[str]:
 	return z_to_swap
 
 
-def get_intermediate_anomalies(gates: List[Gate]) -> List[str]:
+def get_anomalies_2(gates: List[Gate]) -> List[str]:
 	"""
 	If inputs are not x, y and output is not z, then operations should be AND or OR
  	"""
 	valid_operations = set(["AND", "OR"])
-	def input_is_x_y(gate: Gate):
-		return gate.op1.startswith(("x", "y")) or gate.op2.startswith(("x", "y"))
 
 	def output_is_z(gate: Gate):
 		return gate.result.startswith("z")
@@ -211,79 +138,74 @@ def get_intermediate_anomalies(gates: List[Gate]) -> List[str]:
 
 	return invalid_operands
 
+def input_is_x_y(gate: Gate):
+	return gate.op1.startswith(("x", "y")) and gate.op2.startswith(("x", "y"))
+
+
+def get_anomalies_3(gates: List[Gate]) -> List[str]:
+	"""
+	x, y XOR result must be input for another XOR operation
+ 	"""
+	x_y_xor_gates = [gate for gate in gates if input_is_x_y(gate) and gate.operator == "XOR" and not is_x_y_00_operands(gate)]
+
+	anomalies = []
+	for x_y_xor_gate in x_y_xor_gates:
+		found = False
+		for gate in gates:
+			fits = all([
+				gate.operator == "XOR",
+				gate.op1 == x_y_xor_gate.result or gate.op2 == x_y_xor_gate.result,
+			])
+			if fits:
+				# print(gate)
+				found = True
+				break
+		if not found:
+			# print(x_y_xor_gate)
+			anomalies.append(x_y_xor_gate.result)
+
+	return anomalies
+
+def is_x_y_00_operands(gate: Gate) -> bool:
+	xy_00_operands = set(["x00", "y00"])
+	return gate.op1 in xy_00_operands or gate.op2 in xy_00_operands
+
+
+def get_anomalies_4(gates: List[Gate]) -> List[str]:
+	"""
+	if you have AND gate, result should be in OR gate or AND gate is faulty
+ 	"""
+	and_gates = [gate for gate in gates if gate.operator == "AND" and not is_x_y_00_operands(gate) and not gate.result.startswith("z")]
+
+	anomalies = []
+	for and_gate in and_gates:
+		found = False
+		for gate in gates:
+			fits = all([
+				gate.operator == "OR",
+				gate.op1 == and_gate.result or gate.op2 == and_gate.result,
+				not input_is_x_y(gate)
+			])
+			if fits:
+				found = True
+				break
+		if not found:
+			anomalies.append(and_gate.result)
+
+	return anomalies
+
 
 def solve2(input: Input):
-	print(get_z_anomalies(input.gates))
-	print(get_intermediate_anomalies(input.gates))
-
-	# input.gates
+	return get_z_anomalies(input.gates) + get_anomalies_2(input.gates) + get_anomalies_3(input.gates) + get_anomalies_4(input.gates)
 
 
 def main():
 	input = get_input(FILE_PATH_MAIN)
-	for value in input.initial_values:
-		print(value)
+	# for value in input.initial_values:
+	# 	print(value)
 	
-	print(solve2(input))
-	
-	
-	
-
-
-	# # Create a new directed graph
-	# dot = Digraph()
-
-	# for gate in input.gates:
-	# 	dot.node(gate.op1, gate.op1)
-	# 	dot.node(gate.op2, gate.op2)
-	# 	dot.node(gate.result, gate.result)
-
-	# for gate in input.gates:
-	# 	dot.edge(gate.op1, gate.result, label=gate.operator)
-	# 	dot.edge(gate.op2, gate.result, label=gate.operator)
-
-
-	# # Render and view the graph (in PNG format)
-	# dot.render('graph_operations', format='png', view=True)
-
-
-	# # # Create a graph
-	# # G = nx.Graph()
-	# # for gate in input.gates:
-	# # 	G.add_edge(gate.op1, gate.result, label=gate.operator)
-	# # 	G.add_edge(gate.op2, gate.result, label=gate.operator)
-
-	# # pos = nx.spring_layout(G)
-	# # labels = nx.get_edge_attributes(G, 'label')
-	# # nx.draw(G, pos, with_labels=True, node_size=2000, node_color='skyblue')
-	# # nx.draw_networkx_edge_labels(G, pos, edge_labels=labels)
-
-	# # plt.show()
-
-	# # for gate in input.gates:
-	# # 	print(gate)
-
-	# # customizable_operands = set()
-	# # def is_new_customizable(operand: str):
-	# # 	return all([
-	# # 		not operand in customizable_operands,
-	# # 		not operand.startswith("x"),
-	# # 		not operand.startswith("y"),
-	# # 		# not operand.startswith("z"),
-	# # 	])
-	# # for gate in input.gates:
-	# # 	for op in [gate.op1, gate.op2, gate.result]:
-	# # 		if is_new_customizable(op):
-	# # 			customizable_operands.add(op)
-	# # print(customizable_operands)
-	# # print(len(customizable_operands))
-
-
-
-	# # print(f"Result1: {solve1(input)}")
-	# # print(f"Result2: {solve2(input)}")
-
-
+	print("Result1:", solve1(input))
+	print("Result2:",  ",".join(sorted(solve2(input))))
 
 		
 if __name__ == "__main__":
