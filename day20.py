@@ -147,7 +147,7 @@ def get_savings(map, shortest_paths, min_saving):
 
 	boundaries = (len(map), len(map[0]))
 	saved = []
-	checkable_locations = []
+	checked_locations = set()
 
 	def check_positions(start_pos, i_range, j_range):
 		i, j = start_pos
@@ -155,9 +155,20 @@ def get_savings(map, shortest_paths, min_saving):
 			for dj in j_range:
 				end_pos = (i + di, j + dj)
 				ni, nj = end_pos
-				if not is_outside(end_pos, boundaries) and map[ni][nj] != "#":
-					checkable_locations.append(((i, j), (di, dj)))
-					shortest_paths[start_pos]
+				conditions = [
+					# exceeds cheat length
+					lambda: abs(di) + abs(dj) > 20,
+					# already checked
+					lambda: (start_pos, end_pos) in checked_locations,
+					lambda: is_outside(end_pos, boundaries),
+					lambda: map[ni][nj] == "#"
+				]
+				do_not_check = any(check() for check in conditions)
+
+
+				if not do_not_check:
+					# if map[ni][nj] == "#":
+					# 	continue
 					start_shortest = shortest_paths[start_pos]
 					end_shortest = shortest_paths[end_pos]
 					if start_shortest > end_shortest:
@@ -165,20 +176,23 @@ def get_savings(map, shortest_paths, min_saving):
 						if saving >= min_saving:
 							saved.append(saving)
 
+					checked_locations.add((start_pos, end_pos))
 
+
+	full_range = range(-20, 21)
 	for i, j, direction in cheat_starts_with_direction:
 		start_pos = (i, j)
 		if direction == UP:
-			check_positions(start_pos, range(-1, -21, -1), range(-21, 21))
+			check_positions(start_pos, range(-1, -21, -1), full_range)
 
 		if direction == DOWN:
-			check_positions(start_pos, range(1, 21), range(-21, 21))
+			check_positions(start_pos, range(1, 21), full_range)
 
 		if direction == LEFT:
-			check_positions(start_pos, range(-21, 21), range(-1, -21, -1))
+			check_positions(start_pos, full_range, range(-1, -21, -1))
 
 		if direction == RIGHT:
-			check_positions(start_pos, range(-21, 21), range(1, 21))
+			check_positions(start_pos, full_range, range(1, 21))
 
 	return saved
 
