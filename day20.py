@@ -89,7 +89,7 @@ def find_tile(wanted_tile, map):
 
 def get_walkable_walls(map):
 	"""
-	Finds all walls that can be used for cheating
+	Finds all walls that has path after it
 	"""
 	row_len = len(map[0])
 	walkable_walls = []
@@ -123,6 +123,40 @@ def get_walkable_walls(map):
 	return walkable_walls
 
 
+def get_inner_walls(map, shortest_paths):
+	"""
+	Finds all walls  that can be used for cheating
+	"""
+ 
+
+	row_len = len(map[0])
+	walkable_walls = []
+	for i in range(1, len(map)-1):
+		for j in range(1, row_len - 1):
+			if map[i][j] != ".":
+				continue
+
+			
+
+			directions = [direction for direction in directions]
+
+			
+			
+
+			
+			
+
+
+			
+	saved = []
+	for walkable_wall in walkable_walls:
+		side1, side2 = walkable_wall
+		if side1 in shortest_paths and side2 in shortest_paths:
+			saved.append(abs(shortest_paths[side1] - shortest_paths[side2])-2)
+
+	return saved
+
+
 def main():
 	race_map = get_input(FILE_PATH_MAIN)
 	for row in race_map:
@@ -144,13 +178,6 @@ def main():
 	# print("savings count", len(saved))
 	print("Original path", shortest_paths[end])
 	print("Result1:", len([s for s in saved if s >= 100]))
-	print()
-	# grouped = {key: list(group) for key, group in groupby(saved)}
-	# print(grouped)
-	# print(sorted(saved))
-	# # print(shortest_paths)
-	# # 9404 -- too high
-	# 1552 -- too high
 
 
 if __name__ == "__main__":
