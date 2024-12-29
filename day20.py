@@ -134,8 +134,8 @@ def get_savings(map, shortest_paths, min_saving, max_cheat_len):
 	get savings that are more or equal to min_saving
 	"""
 	cheat_starts_with_direction = []
-	for i in range(1, len(map)-1):
-		for j in range(1, len(map[0]) - 1):
+	for i in range(len(map)):
+		for j in range(len(map[0])):
 			if map[i][j] == "#":
 				continue
 
@@ -159,9 +159,10 @@ def get_savings(map, shortest_paths, min_saving, max_cheat_len):
 				ni, nj = end_pos
 				distance = abs(di) + abs(dj)
 
-				if (start_pos, end_pos) in checked_locations:
-					if distance != checked_locations[(start_pos, end_pos)]:
-						raise Exception(f"Distances didn't match: c {distance} l {checked_locations[(start_pos, end_pos)]}")
+				# if (start_pos, end_pos) in checked_locations:
+				# 	if distance != checked_locations[(start_pos, end_pos)]:
+				# 		raise Exception(f"Distances didn't match: c {distance} l {checked_locations[(start_pos, end_pos)]}")
+
 
 
 				failing_conditions = [
