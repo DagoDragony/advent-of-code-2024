@@ -136,7 +136,7 @@ def get_savings(map, shortest_paths, min_saving, max_cheat_len):
 	cheat_starts_with_direction = []
 	for i in range(1, len(map)-1):
 		for j in range(1, len(map[0]) - 1):
-			if map[i][j] != ".":
+			if map[i][j] == "#":
 				continue
 
 			for direction in ALL_DIRECTIONS:
@@ -167,26 +167,30 @@ def get_savings(map, shortest_paths, min_saving, max_cheat_len):
 					lambda: map[ni][nj] == "#"
 				]
 				do_not_check = any(check() for check in failing_conditions)
-				if (i, j) == (7, 7):
-					print(i, j, direction)
-					print("do_not_check", do_not_check)
+				# if (i, j) == (7, 7):
+				# 	print(i, j, direction)
+				# 	print("do_not_check", do_not_check)
 
 				if not do_not_check:
 					# if map[ni][nj] == "#":
 					# 	continue
 					start_shortest = shortest_paths[start_pos]
 					end_shortest = shortest_paths[end_pos]
-					if (i, j) == (7, 7):
-						print("start_pos", start_pos)
-						print("end_pos", end_pos)
-						print("start_shortest, end_shortest", start_shortest, end_shortest)
-					if start_shortest > end_shortest:
-						saving = start_shortest - end_shortest -2
-						if (i, j) == (7, 7):
-							print("saving", saving)
+					# if (i, j) == (3, 1):
+					# 	print("start_pos", start_pos)
+					# 	print("end_pos", end_pos)
+					# 	print("start_shortest", start_shortest, "end_shortest", end_shortest)
+
+					if start_shortest < end_shortest:
+						saving = end_shortest - start_shortest - 2
+						# saving = start_shortest - end_shortest -2
+						# if (i, j) == (7, 7):
+						# 	print("saving", saving)
+						# if saving == 4:
+						# 	print(">>", start_pos, end_pos)
 						if saving >= min_saving:
-							if (i, j) == (7, 7):
-								print("added saving", saving)
+							# if (i, j) == (7, 7):
+							# 	print("added saving", saving)
 							saved.append(saving)
 
 					checked_locations.add((start_pos, end_pos))
@@ -239,18 +243,23 @@ def main():
 	# print(get_savings(race_map, shortest_paths, 100))
 	# print(get_savings(race_map, shortest_paths, 50))
 
-	savings = get_savings(race_map, shortest_paths, 1, 2)
-	counts = Counter(savings)
+	savings = get_savings(race_map, shortest_paths, 100, 2)
+	# counts = Counter(savings)
 	# print(get_savings(race_map, shortest_paths, 100, 2))
-	duplicates = sorted([ (int(item), count) for item, count in counts.items()])
+	# duplicates = sorted([ (int(item), count) for item, count in counts.items()])
+	# for duplicate in duplicates:
+	# 	print(duplicate)
+	print("Result1_2:", len(savings))
+
+
+	savings = get_savings(race_map, shortest_paths, 50, 20)
+	counts = Counter(savings)
+
+	duplicates = sorted([ f"{item}: {count}" for item, count in counts.items() if count > 1 ])
 	for duplicate in duplicates:
 		print(duplicate)
-	print("Result1_2:", sum([1 for save in savings if save >= 100]))
-
-	# counts = Counter(get_savings(race_map, shortest_paths, 50, 20))
-
-	# duplicates = sorted([ f"{item}: {count}" for item, count in counts.items() if count > 1 ])
-	# print(duplicates)
+	# 951593 too low
+	print("Result2:", len(savings))
 
 
 if __name__ == "__main__":
