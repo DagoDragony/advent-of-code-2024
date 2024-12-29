@@ -5,6 +5,7 @@ from enum import Enum
 import time
 from heapq import heappush, heappop
 from itertools import groupby
+from collections import Counter
 
 DAY = 20
 FILE_PATH_EXAMPLE = f"inputs/input_d{DAY}_example1.txt"
@@ -32,7 +33,7 @@ def get_input(file_path) -> List[str]:
         return file.read().splitlines()
 
 
-def is_outside(pos, boundaries):
+def is_outside(pos: Tuple[int, int], boundaries: Tuple[int, int]):
 	i, j = pos
 	len_i, len_j = boundaries
 	return i < 0 or j < 0 or i >= len_i or j >= len_j
@@ -42,6 +43,11 @@ def get_all_adjacent(pos, map):
 	adjacent_tiles =  [(i + di, j + dj) for di, dj in ALL_DIRECTIONS]
 	valid_directions = [tile for tile in adjacent_tiles if not is_outside(tile, (len(map), len(map[0])))]
 	return valid_directions
+
+def move_to_direction(pos, direction):
+	i, j = pos
+	di, dj = direction
+	return (i + di, j + dj)
 
 
 def get_shortest_paths(start, end, map) -> Dict[Coord, int]:
@@ -123,48 +129,68 @@ def get_walkable_walls(map):
 	return walkable_walls
 
 
-def get_inner_walls(map, shortest_paths):
+def get_savings(map, shortest_paths, min_saving):
 	"""
-	Finds all walls  that can be used for cheating
+	get savings that are more or equal to min_saving
 	"""
- 
-
-	row_len = len(map[0])
-	walkable_walls = []
+	cheat_starts_with_direction = []
 	for i in range(1, len(map)-1):
-		for j in range(1, row_len - 1):
+		for j in range(1, len(map[0]) - 1):
 			if map[i][j] != ".":
 				continue
 
-			
+			for direction in ALL_DIRECTIONS:
+				ai, aj = move_to_direction((i, j), direction)
+				if map[ai][aj] == "#":
+					cheat_starts_with_direction.append((i, j, direction))
+	
 
-			directions = [direction for direction in directions]
-
-			
-			
-
-			
-			
-
-
-			
+	boundaries = (len(map), len(map[0]))
 	saved = []
-	for walkable_wall in walkable_walls:
-		side1, side2 = walkable_wall
-		if side1 in shortest_paths and side2 in shortest_paths:
-			saved.append(abs(shortest_paths[side1] - shortest_paths[side2])-2)
+	checkable_locations = []
+
+	def check_positions(start_pos, i_range, j_range):
+		i, j = start_pos
+		for di in i_range:
+			for dj in j_range:
+				end_pos = (i + di, j + dj)
+				ni, nj = end_pos
+				if not is_outside(end_pos, boundaries) and map[ni][nj] != "#":
+					checkable_locations.append(((i, j), (di, dj)))
+					shortest_paths[start_pos]
+					start_shortest = shortest_paths[start_pos]
+					end_shortest = shortest_paths[end_pos]
+					if start_shortest > end_shortest:
+						saving = start_shortest - end_shortest -2
+						if saving >= min_saving:
+							saved.append(saving)
+
+
+	for i, j, direction in cheat_starts_with_direction:
+		start_pos = (i, j)
+		if direction == UP:
+			check_positions(start_pos, range(-1, -21, -1), range(-21, 21))
+
+		if direction == DOWN:
+			check_positions(start_pos, range(1, 21), range(-21, 21))
+
+		if direction == LEFT:
+			check_positions(start_pos, range(-21, 21), range(-1, -21, -1))
+
+		if direction == RIGHT:
+			check_positions(start_pos, range(-21, 21), range(1, 21))
 
 	return saved
 
 
 def main():
-	race_map = get_input(FILE_PATH_MAIN)
+	race_map = get_input(FILE_PATH_EXAMPLE)
 	for row in race_map:
 		print(row)
 	start = find_tile("S", race_map)
 	end = find_tile("E", race_map)
 
-	shortest_path, shortest_paths = get_shortest_paths(start, end, race_map)
+	_, shortest_paths = get_shortest_paths(start, end, race_map)
 
 	walkable_walls = get_walkable_walls(race_map)
 	print("walkable walls", len(walkable_walls))
@@ -178,6 +204,13 @@ def main():
 	# print("savings count", len(saved))
 	print("Original path", shortest_paths[end])
 	print("Result1:", len([s for s in saved if s >= 100]))
+
+	# print(get_savings(race_map, shortest_paths, 100))
+	# print(get_savings(race_map, shortest_paths, 50))
+	counts = Counter(get_savings(race_map, shortest_paths, 50))
+
+	duplicates = sorted([ f"{item}: {count}" for item, count in counts.items() if count > 1 ])
+	print(duplicates)
 
 
 if __name__ == "__main__":
