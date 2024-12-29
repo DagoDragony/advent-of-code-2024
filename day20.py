@@ -255,7 +255,7 @@ def main():
 	savings = get_savings(race_map, shortest_paths, 50, 20)
 	counts = Counter(savings)
 
-	duplicates = sorted([ f"{item}: {count}" for item, count in counts.items() if count > 1 ])
+	duplicates = sorted([ f"{item}: {count}" for item, count in counts.items()])
 	for duplicate in duplicates:
 		print(duplicate)
 	# 951593 too low
