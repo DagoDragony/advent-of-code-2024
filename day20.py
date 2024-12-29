@@ -149,7 +149,7 @@ def get_savings(map, shortest_paths, min_saving, max_cheat_len):
 
 	boundaries = (len(map), len(map[0]))
 	saved = []
-	checked_locations = set()
+	checked_locations = {}
 
 	def check_positions(start_pos, i_range, j_range):
 		i, j = start_pos
@@ -157,13 +157,19 @@ def get_savings(map, shortest_paths, min_saving, max_cheat_len):
 			for dj in j_range:
 				end_pos = (i + di, j + dj)
 				ni, nj = end_pos
+				distance = abs(di) + abs(dj)
+
+				if (start_pos, end_pos) in checked_locations:
+					if distance != checked_locations[(start_pos, end_pos)]:
+						raise Exception(f"Distances didn't match: c {distance} l {checked_locations[(start_pos, end_pos)]}")
+
 
 				failing_conditions = [
+					lambda: is_outside(end_pos, boundaries),
 					# exceeds cheat length
-					lambda: abs(di) + abs(dj) > max_cheat_len,
+					lambda: distance > max_cheat_len,
 					# already checked
 					lambda: (start_pos, end_pos) in checked_locations,
-					lambda: is_outside(end_pos, boundaries),
 					lambda: map[ni][nj] == "#"
 				]
 				do_not_check = any(check() for check in failing_conditions)
@@ -182,7 +188,8 @@ def get_savings(map, shortest_paths, min_saving, max_cheat_len):
 					# 	print("start_shortest", start_shortest, "end_shortest", end_shortest)
 
 					if start_shortest < end_shortest:
-						saving = end_shortest - start_shortest - 2
+						# saving = end_shortest - start_shortest - 2
+						saving = end_shortest - start_shortest - distance
 						# saving = start_shortest - end_shortest -2
 						# if (i, j) == (7, 7):
 						# 	print("saving", saving)
@@ -193,12 +200,12 @@ def get_savings(map, shortest_paths, min_saving, max_cheat_len):
 							# 	print("added saving", saving)
 							saved.append(saving)
 
-					checked_locations.add((start_pos, end_pos))
+					checked_locations[(start_pos, end_pos)] = distance
 
 
-	full_range = range(-max_cheat_len, max_cheat_len+1)
+	full_range = range(-max_cheat_len, max_cheat_len + 1)
 	back_range = range(-1, -(max_cheat_len+1), -1)
-	front_range = range(1, max_cheat_len+1)
+	front_range = range(1, max_cheat_len + 1)
 	for i, j, direction in cheat_starts_with_direction:
 		# if (i, j) == (7, 7):
 		# 	print(i, j, direction)
@@ -255,10 +262,11 @@ def main():
 	savings = get_savings(race_map, shortest_paths, 50, 20)
 	counts = Counter(savings)
 
-	duplicates = sorted([ f"{item}: {count}" for item, count in counts.items()])
+	duplicates = sorted([ f"{item}: {count}" for item, count in counts.items() if count > 1 ])
 	for duplicate in duplicates:
 		print(duplicate)
-	# 951593 too low
+	#  951593 too low
+	# 1102828 too high 
 	print("Result2:", len(savings))
 
 
