@@ -140,12 +140,9 @@ def get_savings(map, shortest_paths, min_saving, max_cheat_len):
 				continue
 
 			for direction in ALL_DIRECTIONS:
-				ai, aj = move_to_direction((i, j), direction)
-				if map[ai][aj] == "#":
+				ei, ej = move_to_direction((i, j), direction)
+				if map[ei][ej] == "#":
 					cheat_starts_with_direction.append((i, j, direction))
-
-	# print("cheat_starts_with_direction")
-	# print(cheat_starts_with_direction)
 
 	boundaries = (len(map), len(map[0]))
 	saved = []
@@ -159,12 +156,6 @@ def get_savings(map, shortest_paths, min_saving, max_cheat_len):
 				ni, nj = end_pos
 				distance = abs(di) + abs(dj)
 
-				# if (start_pos, end_pos) in checked_locations:
-				# 	if distance != checked_locations[(start_pos, end_pos)]:
-				# 		raise Exception(f"Distances didn't match: c {distance} l {checked_locations[(start_pos, end_pos)]}")
-
-
-
 				failing_conditions = [
 					lambda: is_outside(end_pos, boundaries),
 					# exceeds cheat length
@@ -173,32 +164,16 @@ def get_savings(map, shortest_paths, min_saving, max_cheat_len):
 					lambda: (start_pos, end_pos) in checked_locations,
 					lambda: map[ni][nj] == "#"
 				]
-				do_not_check = any(check() for check in failing_conditions)
-				# if (i, j) == (7, 7):
-				# 	print(i, j, direction)
-				# 	print("do_not_check", do_not_check)
+				# do_not_check = any(check() for check in failing_conditions)
+				do_not_check = is_outside(end_pos, boundaries) or distance > max_cheat_len or distance > max_cheat_len or map[ni][nj] == "#"
 
 				if not do_not_check:
-					# if map[ni][nj] == "#":
-					# 	continue
 					start_shortest = shortest_paths[start_pos]
 					end_shortest = shortest_paths[end_pos]
-					# if (i, j) == (3, 1):
-					# 	print("start_pos", start_pos)
-					# 	print("end_pos", end_pos)
-					# 	print("start_shortest", start_shortest, "end_shortest", end_shortest)
 
 					if start_shortest < end_shortest:
-						# saving = end_shortest - start_shortest - 2
 						saving = end_shortest - start_shortest - distance
-						# saving = start_shortest - end_shortest -2
-						# if (i, j) == (7, 7):
-						# 	print("saving", saving)
-						# if saving == 4:
-						# 	print(">>", start_pos, end_pos)
 						if saving >= min_saving:
-							# if (i, j) == (7, 7):
-							# 	print("added saving", saving)
 							saved.append(saving)
 
 					checked_locations[(start_pos, end_pos)] = distance
@@ -208,9 +183,11 @@ def get_savings(map, shortest_paths, min_saving, max_cheat_len):
 	back_range = range(-1, -(max_cheat_len+1), -1)
 	front_range = range(1, max_cheat_len + 1)
 	for i, j, direction in cheat_starts_with_direction:
-		# if (i, j) == (7, 7):
-		# 	print(i, j, direction)
 		start_pos = (i, j)
+		# print("full range", list(full_range))
+		# print("back range", list(back_range))
+		# print("front range", list(front_range))
+		# break
 		if direction == UP:
 			check_positions(start_pos, back_range, full_range)
 
