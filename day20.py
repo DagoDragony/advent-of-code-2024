@@ -153,21 +153,20 @@ def get_savings(map, shortest_paths, min_saving, max_cheat_len):
 		for di in i_range:
 			for dj in j_range:
 				end_pos = (i + di, j + dj)
-				ni, nj = end_pos
+				ei, ej = end_pos
 				distance = abs(di) + abs(dj)
 
-				failing_conditions = [
-					lambda: is_outside(end_pos, boundaries),
+				checkable_conditions = [
+					lambda: not is_outside(end_pos, boundaries),
 					# exceeds cheat length
-					lambda: distance > max_cheat_len,
+					lambda: distance <= max_cheat_len,
 					# already checked
-					lambda: (start_pos, end_pos) in checked_locations,
-					lambda: map[ni][nj] == "#"
+					lambda: not (start_pos, end_pos) in checked_locations,
+					lambda: map[ei][ej] != "#"
 				]
-				# do_not_check = any(check() for check in failing_conditions)
-				do_not_check = is_outside(end_pos, boundaries) or distance > max_cheat_len or distance > max_cheat_len or map[ni][nj] == "#"
+				do_check = all(check() for check in checkable_conditions)
 
-				if not do_not_check:
+				if do_check:
 					start_shortest = shortest_paths[start_pos]
 					end_shortest = shortest_paths[end_pos]
 
@@ -212,29 +211,29 @@ def main():
 
 	_, shortest_paths = get_shortest_paths(start, end, race_map)
 
-	walkable_walls = get_walkable_walls(race_map)
-	print("walkable walls", len(walkable_walls))
-	saved = []
-	for walkable_wall in walkable_walls:
-		side1, side2 = walkable_wall
-		if side1 in shortest_paths and side2 in shortest_paths:
-			saved.append(abs(shortest_paths[side1] - shortest_paths[side2])-2)
-	print("max_saved", max(saved))
-	# print("savings", saved)
-	# print("savings count", len(saved))
-	print("Original path", shortest_paths[end])
-	print("Result1:", len([s for s in saved if s >= 100]))
+	# walkable_walls = get_walkable_walls(race_map)
+	# print("walkable walls", len(walkable_walls))
+	# saved = []
+	# for walkable_wall in walkable_walls:
+	# 	side1, side2 = walkable_wall
+	# 	if side1 in shortest_paths and side2 in shortest_paths:
+	# 		saved.append(abs(shortest_paths[side1] - shortest_paths[side2])-2)
+	# print("max_saved", max(saved))
+	# # print("savings", saved)
+	# # print("savings count", len(saved))
+	# print("Original path", shortest_paths[end])
+	# print("Result1:", len([s for s in saved if s >= 100]))
 
-	# print(get_savings(race_map, shortest_paths, 100))
-	# print(get_savings(race_map, shortest_paths, 50))
+	# # print(get_savings(race_map, shortest_paths, 100))
+	# # print(get_savings(race_map, shortest_paths, 50))
 
-	savings = get_savings(race_map, shortest_paths, 100, 2)
-	# counts = Counter(savings)
-	# print(get_savings(race_map, shortest_paths, 100, 2))
-	# duplicates = sorted([ (int(item), count) for item, count in counts.items()])
-	# for duplicate in duplicates:
-	# 	print(duplicate)
-	print("Result1_2:", len(savings))
+	# savings = get_savings(race_map, shortest_paths, 100, 2)
+	# # counts = Counter(savings)
+	# # print(get_savings(race_map, shortest_paths, 100, 2))
+	# # duplicates = sorted([ (int(item), count) for item, count in counts.items()])
+	# # for duplicate in duplicates:
+	# # 	print(duplicate)
+	# print("Result1_2:", len(savings))
 
 
 	savings = get_savings(race_map, shortest_paths, 50, 20)
