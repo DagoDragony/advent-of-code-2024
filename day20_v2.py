@@ -148,23 +148,15 @@ def get_savings(map, shortest_paths, min_saving, max_cheat_len):
 
 def main():
 	race_map = get_input(FILE_PATH_MAIN)
-	for row in race_map:
-		print(row)
 	start = find_tile("S", race_map)
 	end = find_tile("E", race_map)
 
 	_, shortest_paths = get_shortest_paths(start, end, race_map)
 
-	savings = get_savings(race_map, shortest_paths, 100, 20)
-	counts = Counter(savings)
-
-	duplicates = sorted([ f"{item}: {count}" for item, count in counts.items()])
-	for duplicate in duplicates:
-		print(duplicate)
-
-	print("Result2:", len(savings))
-	#  951593 too low
-	# 1102828 too high 
+	savings_for_len_2 = get_savings(race_map, shortest_paths, 100, 2)
+	print("Result1:", len(savings_for_len_2))
+	savings_for_len_20 = get_savings(race_map, shortest_paths, 100, 20)
+	print("Result2:", len(savings_for_len_20))
 
 if __name__ == "__main__":
 	main()

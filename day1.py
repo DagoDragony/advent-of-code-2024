@@ -1,42 +1,57 @@
-import os
+from typing import List, Tuple
+from collections import Counter
 
-# Get the absolute path of the current script's directory
-script_dir = os.path.dirname(os.path.abspath(__file__))
-file_path = os.path.join(script_dir, 'inputs/input_d1.txt')
+DAY = 1
 
-print(f"Reading file {file_path}")
-print(f"PROCESSING PART 1...")
-left = []
-right = []
-with open(file_path, 'r') as file:
-    lines = file.readlines()
-    for line in lines:
-        a, b = line.split('   ')
+def get_input(file_path) -> Tuple[List[int], List[int]]:
+    print(f"Reading file {file_path}")
+    left = []
+    right = []
+    with open(file_path, 'r') as file:
+        lines = file.readlines()
+        for line in lines:
+            a, b = line.split('   ')
 
-        left.append(int(a))
-        right.append(int(b))
+            left.append(int(a))
+            right.append(int(b))
 
-left.sort()
-right.sort()
+    return (sorted(left), sorted(right))
 
-result1 = []
 
-# result1 = sum(abs(a - b) for a, b in zip(sorted(left_list), sorted(right_list)))
-for a, b in zip(left, right):
-    result1.append(abs(a - b))
+def solve1(left: List[int], right: List[int]) -> int:
+    """
+    Find distance between 2 sorted lists paired values
+    and return sum
+    """
+    distances = []
 
-print(f"result1: {sum(result1)}")
+    for a, b in zip(left, right):
+        distances.append(abs(a - b))
 
-print(f"PROCESSING PART 2...")
-uniqueMembers = set(left)
+    return sum(distances)
 
-occ_map = {}
-for r in right:
-    if r in uniqueMembers:
-        occ_map[r] = occ_map.get(r, 0) + 1
 
-result2_scores = []
-for l in left:
-    result2_scores.append(l * occ_map.get(l, 0))
+def solve2(left: List[int], right: List[int]) -> int:
+    """
+    Calculate similarity score
+    Find how many times left list member appear in right one and multiply it by count
+    """
+    right_counter = Counter(right)
+    # uniqueMembers = set(left)
+    # occ_map = {}
+    # for r in right:
+    #     if r in uniqueMembers:
+    #         occ_map[r] = occ_map.get(r, 0) + 1
 
-print(f"rezult2 {sum(result2_scores)}")
+    similarity_scores = [l * right_counter[l] for l in left]
+
+    return sum(similarity_scores)
+
+
+def main():
+    left, right = get_input(f"inputs/input_d{DAY}.txt")
+    print(f"Result1: {solve1(left, right)}")
+    print(f"Result2: {solve2(left, right)}")
+
+if __name__ == "__main__":
+    main()
