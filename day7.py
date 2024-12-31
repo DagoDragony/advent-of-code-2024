@@ -7,8 +7,8 @@ import sys
 
 # Get the absolute path of the current script's directory
 script_dir = os.path.dirname(os.path.abspath(__file__))
-# file_path = os.path.join(script_dir, 'inputs/input_d7_example1.txt')
-file_path = os.path.join(script_dir, 'inputs/input_d7.txt')
+# file_path = os.path.join(script_dir, 'inputs/d7_example1.txt')
+file_path = os.path.join(script_dir, 'inputs/d7.txt')
 
 print(f"Reading file {file_path}")
 print("PROCESSING PART 1...")

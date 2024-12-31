@@ -5,8 +5,8 @@ from collections import defaultdict, Counter
 from itertools import combinations, groupby
 
 DAY = 23
-FILE_PATH_EXAMPLE = f"inputs/input_d{DAY}_example1.txt"
-FILE_PATH_MAIN = f"inputs/input_d{DAY}.txt"
+FILE_PATH_EXAMPLE = f"inputs/d{DAY}_example1.txt"
+FILE_PATH_MAIN = f"inputs/d{DAY}.txt"
 
 
 def get_input(file_path) -> List[str]:

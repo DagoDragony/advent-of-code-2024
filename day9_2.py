@@ -1,8 +1,8 @@
 import os
 
 script_dir = os.path.dirname(os.path.abspath(__file__))
-# file_path = os.path.join(script_dir, 'inputs/input_d9.txt')
-file_path = os.path.join(script_dir, 'inputs/input_d9_example1.txt')
+# file_path = os.path.join(script_dir, 'inputs/d9.txt')
+file_path = os.path.join(script_dir, 'inputs/d9_example1.txt')
 
 print(f"Reading file {file_path}")
 print("PROCESSING PART 1...")

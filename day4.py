@@ -4,10 +4,10 @@ import numpy as np
 
 # Get the absolute path of the current script's directory
 script_dir = os.path.dirname(os.path.abspath(__file__))
-# file_path = os.path.join(script_dir, 'inputs/input_d4_example1_custom.txt')
-# file_path = os.path.join(script_dir, 'inputs/input_d4_example1_custom2.txt')
-# file_path = os.path.join(script_dir, 'inputs/input_d4_example1.txt')
-file_path = os.path.join(script_dir, 'inputs/input_d4.txt')
+# file_path = os.path.join(script_dir, 'inputs/d4_example1_custom.txt')
+# file_path = os.path.join(script_dir, 'inputs/d4_example1_custom2.txt')
+# file_path = os.path.join(script_dir, 'inputs/d4_example1.txt')
+file_path = os.path.join(script_dir, 'inputs/d4.txt')
 
 print(f"Reading file {file_path}")
 print("PROCESSING PART 1...")

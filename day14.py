@@ -8,8 +8,8 @@ from math import prod
 
 # Get the absolute path of the current script's directory
 script_dir = os.path.dirname(os.path.abspath(__file__))
-# file_path = os.path.join(script_dir, 'inputs/input_d14_example1.txt')
-file_path = os.path.join(script_dir, 'inputs/input_d14.txt')
+# file_path = os.path.join(script_dir, 'inputs/d14_example1.txt')
+file_path = os.path.join(script_dir, 'inputs/d14.txt')
 
 @dataclass
 class RobotData:

@@ -6,8 +6,8 @@ itertools.combinations
 
 # Get the absolute path of the current script's directory
 script_dir = os.path.dirname(os.path.abspath(__file__))
-# file_path = os.path.join(script_dir, 'inputs/input_d8_example1.txt')
-file_path = os.path.join(script_dir, 'inputs/input_d8.txt')
+# file_path = os.path.join(script_dir, 'inputs/d8_example1.txt')
+file_path = os.path.join(script_dir, 'inputs/d8.txt')
 
 print(f"Reading file {file_path}")
 print("PROCESSING PART 1...")

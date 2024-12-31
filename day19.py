@@ -6,8 +6,8 @@ from collections import defaultdict
 import time
 import heapq
 
-FILE_PATH_EXAMPLE = 'inputs/input_d19_example1.txt'
-FILE_PATH_MAIN = 'inputs/input_d19.txt'
+FILE_PATH_EXAMPLE = 'inputs/d19_example1.txt'
+FILE_PATH_MAIN = 'inputs/d19.txt'
 
 
 @dataclass

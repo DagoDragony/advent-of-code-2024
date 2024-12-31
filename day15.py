@@ -3,9 +3,9 @@ from dataclasses import dataclass
 from typing import Tuple, List
 
 script_dir = os.path.dirname(os.path.abspath(__file__))
-# file_path = os.path.join(script_dir, 'inputs/input_d15_example1.txt')
-# file_path = os.path.join(script_dir, 'inputs/input_d15_example2.txt')
-file_path = os.path.join(script_dir, 'inputs/input_d15.txt')
+# file_path = os.path.join(script_dir, 'inputs/d15_example1.txt')
+# file_path = os.path.join(script_dir, 'inputs/d15_example2.txt')
+file_path = os.path.join(script_dir, 'inputs/d15.txt')
 
 @dataclass
 class RobotData:

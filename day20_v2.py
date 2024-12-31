@@ -8,8 +8,8 @@ from itertools import groupby
 from collections import Counter
 
 DAY = 20
-FILE_PATH_EXAMPLE = f"inputs/input_d{DAY}_example1.txt"
-FILE_PATH_MAIN = f"inputs/input_d{DAY}.txt"
+FILE_PATH_EXAMPLE = f"inputs/d{DAY}_example1.txt"
+FILE_PATH_MAIN = f"inputs/d{DAY}.txt"
 
 RIGHT=(0, 1)
 LEFT=(0, -1)

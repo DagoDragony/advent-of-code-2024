@@ -176,9 +176,9 @@ def get_perimeter_and_area_with_dicount(region, name):
 
 
 
-# file_path = os.path.join(script_dir, 'inputs/input_d12_example1.txt')
-# file_path = os.path.join(script_dir, 'inputs/input_d12_example0.txt')
-file_path = os.path.join(script_dir, 'inputs/input_d12.txt')
+# file_path = os.path.join(script_dir, 'inputs/d12_example1.txt')
+# file_path = os.path.join(script_dir, 'inputs/d12_example0.txt')
+file_path = os.path.join(script_dir, 'inputs/d12.txt')
 garden = get_garden(file_path)
 print("Garden")
 print("-" * 100)

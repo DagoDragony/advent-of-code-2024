@@ -9,9 +9,9 @@ import heapq
 
 sys.setrecursionlimit(10000)
 
-# FILE_PATH = 'inputs/input_d16_example1.txt'
-FILE_PATH = 'inputs/input_d16_example2.txt'
-# FILE_PATH = 'inputs/input_d16.txt'
+# FILE_PATH = 'inputs/d16_example1.txt'
+FILE_PATH = 'inputs/d16_example2.txt'
+# FILE_PATH = 'inputs/d16.txt'
 
 RIGHT=(0, 1)
 LEFT=(0, -1)

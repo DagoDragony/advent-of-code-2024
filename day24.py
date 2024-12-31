@@ -4,10 +4,10 @@ from dataclasses import dataclass
 from collections import deque
 
 DAY = 24
-FILE_PATH_EXAMPLE = f"inputs/input_d{DAY}_example1.txt"
-FILE_PATH_EXAMPLE2 = f"inputs/input_d{DAY}_example2.txt"
-FILE_PATH_EXAMPLE3 = f"inputs/input_d{DAY}_example3.txt"
-FILE_PATH_MAIN = f"inputs/input_d{DAY}.txt"
+FILE_PATH_EXAMPLE = f"inputs/d{DAY}_example1.txt"
+FILE_PATH_EXAMPLE2 = f"inputs/d{DAY}_example2.txt"
+FILE_PATH_EXAMPLE3 = f"inputs/d{DAY}_example3.txt"
+FILE_PATH_MAIN = f"inputs/d{DAY}.txt"
 
 @dataclass
 class Gate:

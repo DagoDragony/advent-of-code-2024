@@ -5,8 +5,8 @@ from typing import Tuple
 import re
 
 script_dir = os.path.dirname(os.path.abspath(__file__))
-# file_path = os.path.join(script_dir, 'inputs/input_d13_example1.txt')
-file_path = os.path.join(script_dir, 'inputs/input_d13.txt')
+# file_path = os.path.join(script_dir, 'inputs/d13_example1.txt')
+file_path = os.path.join(script_dir, 'inputs/d13.txt')
 
 @dataclass
 class Machine:

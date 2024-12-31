@@ -37,19 +37,13 @@ def solve2(left: List[int], right: List[int]) -> int:
     Find how many times left list member appear in right one and multiply it by count
     """
     right_counter = Counter(right)
-    # uniqueMembers = set(left)
-    # occ_map = {}
-    # for r in right:
-    #     if r in uniqueMembers:
-    #         occ_map[r] = occ_map.get(r, 0) + 1
-
     similarity_scores = [l * right_counter[l] for l in left]
 
     return sum(similarity_scores)
 
 
 def main():
-    left, right = get_input(f"inputs/input_d{DAY}.txt")
+    left, right = get_input(f"inputs/d{DAY}.txt")
     print(f"Result1: {solve1(left, right)}")
     print(f"Result2: {solve2(left, right)}")
 

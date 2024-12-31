@@ -5,8 +5,8 @@ from enum import Enum
 import time
 import heapq
 
-FILE_PATH_EXAMPLE = 'inputs/input_d18_example1.txt'
-FILE_PATH_MAIN = 'inputs/input_d18.txt'
+FILE_PATH_EXAMPLE = 'inputs/d18_example1.txt'
+FILE_PATH_MAIN = 'inputs/d18.txt'
 
 def get_input(file_path) -> List[Tuple[int, int]]:
 	script_dir = os.path.dirname(os.path.abspath(__file__))

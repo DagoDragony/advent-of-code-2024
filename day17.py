@@ -8,8 +8,8 @@ import sys
 
 sys.setrecursionlimit(10000)
 
-# FILE_PATH = 'inputs/input_d17_example1.txt'
-FILE_PATH = 'inputs/input_d17.txt'
+# FILE_PATH = 'inputs/d17_example1.txt'
+FILE_PATH = 'inputs/d17.txt'
 
 @dataclass
 class Program:

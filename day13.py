@@ -48,8 +48,8 @@ def get_machine_behaviors(file_path) -> list:
     machine_behaviors_strings = [lines[i:i+4] for i in range(0, len(lines), 4)]
     return [parse_machine_behavior(machine_behavior_string) for machine_behavior_string in machine_behaviors_strings]
 
-# file_path = os.path.join(script_dir, 'inputs/input_d13_example1.txt')
-file_path = os.path.join(script_dir, 'inputs/input_d13.txt')
+# file_path = os.path.join(script_dir, 'inputs/d13_example1.txt')
+file_path = os.path.join(script_dir, 'inputs/d13.txt')
 machine_settings = get_machine_behaviors(file_path)
 
 
