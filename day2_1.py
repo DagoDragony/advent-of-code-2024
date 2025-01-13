@@ -1,18 +1,14 @@
 import os
 
-# Get the absolute path of the current script's directory
-script_dir = os.path.dirname(os.path.abspath(__file__))
-# file_path = os.path.join(script_dir, 'inputs/2_1_example.txt')
-file_path = os.path.join(script_dir, 'inputs/d2.txt')
+DAY = 2
 
-print(f"Reading file {file_path}")
-print(f"PROCESSING PART 1...")
-level_list = []
-with open(file_path, 'r') as file:
-    lines = file.readlines()
-    for line in lines:
-        level_list.append(list(map(int, line.split(' '))))
-print(level_list)
+script_dir = os.path.dirname(os.path.abspath(__file__))
+
+def get_input(file_path):
+    with open(file_path, 'r') as file:
+        level_list = [list(map(int, line.split(' '))) for line in file.readlines()]
+    return level_list
+
 
 def check_levels(levels):
     print(f"checking {levels}")
@@ -28,11 +24,12 @@ def check_levels(levels):
     return True
 
 
+level_list = get_input(f"inputs/d{DAY}.txt")
 safe_count = 0
 for levels in level_list:
     succeeded = check_levels(levels)
-    # print(succeeded)
     safe_count += succeeded
+
 
 print(sum([int(check_levels(levels)) for levels in level_list]))
 print(f"result1: {safe_count}")

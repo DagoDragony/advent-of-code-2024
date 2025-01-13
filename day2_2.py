@@ -1,20 +1,15 @@
 import os
 
-# Get the absolute path of the current script's directory
-script_dir = os.path.dirname(os.path.abspath(__file__))
-file_path = os.path.join(script_dir, 'inputs/d2.txt')
-# file_path = os.path.join(script_dir, 'inputs/2_1_example.txt')
+DAY = 2
 
-print(f"Reading file {file_path}")
-print(f"PROCESSING PART 2...")
-level_list = []
-with open(file_path, 'r') as file:
-    lines = file.readlines()
-    for line in lines:
-        level_list.append(list(map(int, line.split(' '))))
+def get_input(file_path):
+    with open(file_path, 'r') as file:
+        level_list = [list(map(int, line.split(' '))) for line in file.readlines()]
+    return level_list
+
 
 def check_levels(levels):
-    print(f"checking {levels}")
+    # print(f"checking {levels}")
     ascending = True if(levels[0] - levels[1] < 0) else False
     for i in range(len(levels) - 1):
         diff = levels[i] - levels[i+1]
@@ -28,27 +23,32 @@ def check_levels(levels):
     return True
 
 
-print(level_list)
-safe_count = 0
-for levels in level_list:
-    if(len(levels) > 1):
-        ascending = True if(levels[0] - levels[1] < 0) else False
-    second_chance = False
-    succeeded = True
-    succeeded = check_levels(levels)
-    if not succeeded:
-        for i in range(len(levels)):
-            print(f"i={i}")
-            new_levels = list(levels)
-            print(f"removing {new_levels[i]}")
-            del new_levels[i]
-            good = check_levels(new_levels)
-            if good:
-                print("succeeded")
-                succeeded = True
-                break
-    print(succeeded)
-    if succeeded:
-        safe_count += 1
+def solve1(level_list):
+    safe_count = 0
+    for levels in level_list:
+        succeeded = check_levels(levels)
+        safe_count += succeeded
+    return safe_count
 
-print(f"result2: {safe_count}")
+
+def solve2(level_list):
+    safe_count = 0
+    for levels in level_list:
+        succeeded = True
+        succeeded = check_levels(levels)
+        if not succeeded:
+            for i in range(len(levels)):
+                new_levels = list(levels)
+                del new_levels[i]
+                good = check_levels(new_levels)
+                if good:
+                    succeeded = True
+                    break
+        if succeeded:
+            safe_count += 1
+    return safe_count
+
+
+level_list = get_input(f"inputs/d{DAY}.txt")
+print(f"result1: {solve1(level_list)}")
+print(f"result2: {solve2(level_list)}")
